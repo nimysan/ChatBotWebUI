@@ -1,0 +1,10 @@
+{
+  "pg_config": [
+    "localhost",
+    "5432",
+    "knowledges",
+    "postgres",
+    "mysecretpassword"
+  ],
+  "openai_key": "sk-xxxxxxx"
+}
