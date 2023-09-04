@@ -2,10 +2,10 @@
 
 import json
 
-from langchain.embeddings import OpenAIEmbeddings
+# from langchain.embeddings import OpenAIEmbeddings
 
 APP_CONFIG_KEY_PG_CONN = "pg_conn"
-OPENAI_EMBEDDINGS = OpenAIEmbeddings()
+# OPENAI_EMBEDDINGS = OpenAIEmbeddings()
 
 
 # give me a function to load json file
@@ -30,10 +30,6 @@ def get_config(key):
 
 def get_pg_config():
     return GLOBAL_CONFIG_OBJECT.get("pg_config", None)
-
-
-def get_embeddings_by_key(key):
-    return OPENAI_EMBEDDINGS;  # TODO
 
 
 def write_config(key, value):
