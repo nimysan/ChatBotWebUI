@@ -42,11 +42,11 @@ def build_retriever(embeddings, collection_name, retrieve_size=2):
 
 
 def build_llm():
-    return OpenAI(batch_size=5, verbose=True)
+    return OpenAI(batch_size=5, verbose=True, openai_api_key=bot_config.get_config("openai_key"))
 
 
 def build_embeddings():
-    return OpenAIEmbeddings()
+    return OpenAIEmbeddings(openai_api_key=bot_config.get_config("openai_key"))
 
 
 def build_chain(collection_name, conversational=True):

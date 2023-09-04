@@ -1,4 +1,7 @@
 #!/bin/bash
 
 #git clone https://github.com/nimysan/ChatBotWebUI.git
-gradio webui.py
+
+pip install -r requirements.txt
+cp config-example.json config.json
+nohup python3 webui.py &
