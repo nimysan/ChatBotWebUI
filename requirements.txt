@@ -7,7 +7,6 @@ tabulate
 pdf2image
 tiktoken
 transformers
-psycopg2
 psycopg2-binary
 selenium
 lxml
