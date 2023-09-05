@@ -14,3 +14,4 @@ multi_tab_interface = gr.TabbedInterface(
 )
 
 multi_tab_interface.launch()
+

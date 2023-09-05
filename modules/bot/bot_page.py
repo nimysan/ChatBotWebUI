@@ -75,12 +75,15 @@ with gr.Blocks(
 
         # work_chain = chain
         # if not callable(work_chain):
-        work_chain = bot_pg_chatgpt.build_chain(collection, True)
+        try:
+            work_chain = bot_pg_chatgpt.build_chain(collection, True)
 
-        resp = run_chain(work_chain, message, history=chat_history)  # 每次临时build一个？
-        resp_message = resp.get("answer", "")
-        chat_history.append((message, resp_message))
-        return "", chat_history, work_chain
+            resp = run_chain(work_chain, message, history=chat_history)  # 每次临时build一个？
+            resp_message = resp.get("answer", "")
+            chat_history.append((message, resp_message))
+            return "", chat_history, work_chain
+        except Exception as e:
+            raise gr.Error(f"Please check your configuration. The error is {e}")
 
 
     msg.submit(langchain_bot, [msg, t_collection_selector, t_conversation_mode, chatbot],

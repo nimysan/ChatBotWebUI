@@ -64,9 +64,14 @@ def put_documents(embeddings, collection_name, texts, connection_string):
 
 def refresh_collections():
     # con_str = connection_string or compose_pg_connection_string(*bot_config.get_pg_config())
-    config = bot_config.get_pg_config();
-    conn = psycopg2.connect(database=config[2], user=config[3], password=config[4], host=config[0], port=config[1])
     EXIST_COLLECTIONS.clear()
+    config = bot_config.get_pg_config();
+    try:
+        conn = psycopg2.connect(database=config[2], user=config[3], password=config[4], host=config[0], port=config[1])
+    except Exception as e:
+        print("e")
+        return EXIST_COLLECTIONS;
+
     with conn:
         print(f"conn {conn}")
         cur = conn.cursor()

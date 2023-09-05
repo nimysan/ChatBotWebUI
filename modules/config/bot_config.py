@@ -2,6 +2,8 @@
 
 import json
 
+from langchain.embeddings import OpenAIEmbeddings
+
 # from langchain.embeddings import OpenAIEmbeddings
 
 APP_CONFIG_KEY_PG_CONN = "pg_conn"
@@ -36,5 +38,7 @@ def write_config(key, value):
     GLOBAL_CONFIG_OBJECT[key] = value
     save_config(GLOBAL_CONFIG_OBJECT)
 
+def get_embeddings_by_key(key):
+    return OpenAIEmbeddings(openai_api_key=get_config("openai_key"))
 
 GLOBAL_CONFIG_OBJECT = load_config()

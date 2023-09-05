@@ -15,4 +15,6 @@ docker build -t my_postgres .
 
 ```bash
 docker run --name vg_my_postgres -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d vg_postgres
+
+## aws rds只i给你
 ```

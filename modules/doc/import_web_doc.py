@@ -19,45 +19,48 @@ def sample_function(*args):
 def import_knowledge_function(urls, collection_name, t_clean_before_import, sample_keywords, chunk_size, chunk_overlap):
     # url = "https://docs.python.org/3.9/" sample url
     print(f"clean is {t_clean_before_import}")
-    embeddings = bot_config.get_embeddings_by_key("openai")
-    connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
-    # connection_string = compose_pg_connection_string(bot_config.get_config(""))
+    try:
+        embeddings = bot_config.get_embeddings_by_key("openai")
+        connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
+        # connection_string = compose_pg_connection_string(bot_config.get_config(""))
 
-    print(
-        f"#########generate data to {collection_name} from {urls} with keywords: {sample_keywords} pg host {connection_string} ")
-    loader = WebBaseLoader([urls])
-    data = loader.load()
-    # loader = SeleniumURLLoader(urls)
-    # data = loader.load()
-    # print(data)
-    # 初始化文本分割器
-    # 英语多，中文少
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
-    )
+        print(
+            f"#########generate data to {collection_name} from {urls} with keywords: {sample_keywords} pg host {connection_string} ")
+        loader = WebBaseLoader([urls])
+        data = loader.load()
+        # loader = SeleniumURLLoader(urls)
+        # data = loader.load()
+        # print(data)
+        # 初始化文本分割器
+        # 英语多，中文少
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap
+        )
 
-    texts = text_splitter.split_documents(data)
-    print("===============sample text fragment ===============\n")
-    if texts and len(texts) > 0:
-        print(texts[1])
-    print("===============sample text fragment ===============\n")
+        texts = text_splitter.split_documents(data)
+        print("===============sample text fragment ===============\n")
+        if texts and len(texts) > 0:
+            print(texts[1])
+        print("===============sample text fragment ===============\n")
 
-    print(f"#########connection_string data to {connection_string}")
-    db = PGVector.from_documents(
-        embedding=embeddings,
-        documents=texts,
-        collection_name=collection_name,
-        connection_string=connection_string,
-        pre_delete_collection=t_clean_before_import
-    )
+        print(f"#########connection_string data to {connection_string}")
+        db = PGVector.from_documents(
+            embedding=embeddings,
+            documents=texts,
+            collection_name=collection_name,
+            connection_string=connection_string,
+            pre_delete_collection=t_clean_before_import
+        )
 
-    # query = "车辆信息"
-    docs_with_score: List[Tuple[Document, float]] = db.similarity_search_with_score(sample_keywords)
-    if len(docs_with_score) > 0:
-        return f"导入完成 例子数据:\n {docs_with_score[0]}"
-    else:
-        return f"导入完成 但是没有找到匹配关键字的数据"
+        # query = "车辆信息"
+        docs_with_score: List[Tuple[Document, float]] = db.similarity_search_with_score(sample_keywords)
+        if len(docs_with_score) > 0:
+            return f"导入完成 例子数据:\n {docs_with_score[0]}"
+        else:
+            return f"导入完成 但是没有找到匹配关键字的数据"
+    except Exception as e:
+        raise gr.Error(f"Failed to import, the error detail is {e}")
 
 
 with gr.Blocks() as component_import_data:
@@ -73,7 +76,7 @@ with gr.Blocks() as component_import_data:
         t_chunk_size = gr.Number(placeholder="分段长度，英文建议>500", label="Chunk Size", value=1000)
         t_chunk_overlap = gr.Number(placeholder="分段长度，英文建议>500", label="Overlap", value=20)
 
-    # with gr.Column() as knowledge_collection_import:
+        # with gr.Column() as knowledge_collection_import:
         import_btn = gr.Button("现在开始导入知识")
         import_out = gr.Textbox(label="导入结果")
 
