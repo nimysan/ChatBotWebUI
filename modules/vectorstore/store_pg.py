@@ -68,20 +68,20 @@ def refresh_collections():
     config = bot_config.get_pg_config();
     try:
         conn = psycopg2.connect(database=config[2], user=config[3], password=config[4], host=config[0], port=config[1])
+
+        with conn:
+            print(f"conn {conn}")
+            cur = conn.cursor()
+            cur.execute("select distinct name from public.langchain_pg_collection")
+            rows = cur.fetchall()
+            # collections = []
+            for row in rows:
+                EXIST_COLLECTIONS.append(row[0])
+        # conn.close()
+    # return collections;
     except Exception as e:
         print("e")
         return EXIST_COLLECTIONS;
-
-    with conn:
-        print(f"conn {conn}")
-        cur = conn.cursor()
-        cur.execute("select distinct name from public.langchain_pg_collection")
-        rows = cur.fetchall()
-        # collections = []
-        for row in rows:
-            EXIST_COLLECTIONS.append(row[0])
-        # conn.close()
-    # return collections;
     return EXIST_COLLECTIONS;
 
 
