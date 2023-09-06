@@ -13,4 +13,4 @@ multi_tab_interface = gr.TabbedInterface(
     tab_names=['Chat(咨询中心)', 'Settings(设置)', "FAQ Import(网页FAQ导入）"]
 )
 
-multi_tab_interface.launch(server_name="0.0.0.0", server_port=80)
+multi_tab_interface.launch(server_name="0.0.0.0", server_port=7860)
