@@ -1,4 +1,4 @@
-langchain
+langchain==0.0.229
 pydevd_pycharm
 pgvector
 openai
@@ -8,11 +8,10 @@ pdf2image
 tiktoken
 transformers
 psycopg2-binary
-markupsafe
+markupsafe==2.0.1
 selenium
 lxml
 streamlit
 libmagic
 bs4
 gradio
-urllib3==1.26.6
