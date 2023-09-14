@@ -58,3 +58,18 @@ predictor.predict({
 })
 
 ```
+
+## Bedrock
+
+内部试用入口： https://prod.onboard.bedrock.aws.dev/
+console访问: https://us-west-2.awsc-integ.aws.amazon.com/bedrock/home?region=us-west-2#/overview
+sdk访问:   https://prod.us-west-2.frontend.bedrock.aws.dev/
+
+```json
+{
+  "modelId": "amazon.titan-tg1-large",
+  "contentType": "application/json",
+  "accept": "*/*",
+  "body": "{\"inputText\":\"waht's genai?\",\"textGenerationConfig\":{\"maxTokenCount\":512,\"stopSequences\":[],\"temperature\":0,\"topP\":0.9}}"
+}
+```

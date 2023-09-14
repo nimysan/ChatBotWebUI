@@ -73,8 +73,8 @@ with gr.Blocks() as component_import_data:
         t_doc_collection = gr.Text(placeholder="知识库集合名称", label="请输入知识库集合名称")
         t_clean_before_import = gr.Checkbox(label="clean exists data before import")
         t_sample_keyword = gr.Text(placeholder="输入一个关键字, 知识入库后测试搜索效果", label="导入测试关键词")
-        t_chunk_size = gr.Number(placeholder="分段长度，英文建议>500", label="Chunk Size", value=1000)
-        t_chunk_overlap = gr.Number(placeholder="分段长度，英文建议>500", label="Overlap", value=20)
+        t_chunk_size = gr.Number(label="Chunk Size", value=1000)
+        t_chunk_overlap = gr.Number(label="Overlap", value=20)
 
         # with gr.Column() as knowledge_collection_import:
         import_btn = gr.Button("现在开始导入知识")

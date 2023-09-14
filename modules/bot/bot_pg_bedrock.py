@@ -1,38 +1,27 @@
 """
-完全使用ChatGPT的ChatBot程序
-
-sample prompt:
-供参考用， langchain内置的prompt模版
-
-    sample_template = \"""Given the following extracted parts of a long document and a question, create a final answer with references ("SOURCES").
-    If you don't know the answer, just say that you don't know. Don't try to make up an answer.
-    ALWAYS return a "SOURCES" part in your answer.
-    Respond in Italian.
-
-    QUESTION: {question}
-    =========
-    {summaries}
-    =========
-    FINAL ANSWER IN ITALIAN:\"""
-
-
+基于SageMaker Endpoint的机器人组装程序 （每个模型根据自己的特性来定制prompt)
 """
+
 import json
 import os
+from typing import Dict
 
-from langchain import PromptTemplate, LLMChain
-from langchain.chains import RetrievalQAWithSourcesChain, ConversationalRetrievalChain
-from langchain.chains.combine_documents.stuff import StuffDocumentsChain
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.llms import OpenAI
+from langchain import LLMChain
+from langchain.chains import RetrievalQAWithSourcesChain, StuffDocumentsChain, ConversationalRetrievalChain
+from langchain.embeddings import BedrockEmbeddings
+from langchain.llms.bedrock import Bedrock
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
 from modules.config import bot_config
+from modules.config.embedding_config import get_embeddings_by_name, EMBEDDINGS_BEDROCK
 from modules.vectorstore import store_pg
 from modules.vectorstore.store_pg import compose_pg_connection_string
 
 MAX_HISTORY_LENGTH = 5
+
+
 
 
 def build_retriever(embeddings, collection_name, retrieve_size=2):
@@ -41,13 +30,30 @@ def build_retriever(embeddings, collection_name, retrieve_size=2):
     return store_pg.as_retriever(embeddings, collection_name, connection_string, retrieve_size)
 
 
+class ContentHandler(LLMContentHandler):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def transform_input(self, prompt: str, model_kwargs: dict) -> bytes:
+        input_str = json.dumps({"inputs": prompt})
+        return input_str.encode('utf-8')
+
+    def transform_output(self, output: bytes) -> str:
+        response_json = json.loads(output.read())
+        print(f"xx {response_json} ")
+        # return response_json["answer"]
+        return response_json[0]['generated_text']
+
+
+# 构造大语言模型
 def build_llm():
-    return OpenAI(batch_size=5, verbose=True, openai_api_key=bot_config.get_config("openai_key"))
+    return Bedrock(
+        credentials_profile_name="bedrock-admin",
+        model_id="amazon.titan-tg1-large"
+    )
 
 
-def build_embeddings():
-    return OpenAIEmbeddings(openai_api_key=bot_config.get_config("openai_key"))
-
+embeddings = get_embeddings_by_name(EMBEDDINGS_BEDROCK);
 
 CHAT_MEMORY = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
@@ -57,8 +63,6 @@ def build_chain(collection_name, conversational=True):
     llm = build_llm();
 
     print(f"knowledge bases on collection {collection_name} ")
-
-    openai_embeddings = build_embeddings()
 
     if conversational is True:
         # memory
@@ -103,7 +107,7 @@ def build_chain(collection_name, conversational=True):
 
         qa = ConversationalRetrievalChain(
             question_generator=condense_question_chain,
-            retriever=build_retriever(openai_embeddings, collection_name),
+            retriever=build_retriever(embeddings, collection_name),
             memory=CHAT_MEMORY,
             verbose=True,
             combine_docs_chain=final_qa_chain,
@@ -128,7 +132,7 @@ def build_chain(collection_name, conversational=True):
             "verbose": True
         }
         qa = RetrievalQAWithSourcesChain.from_chain_type(
-            retriever=build_retriever(openai_embeddings, collection_name),
+            retriever=build_retriever(embeddings, collection_name),
             llm=llm,
             verbose=True,
             chain_type_kwargs=chain_type_kwargs

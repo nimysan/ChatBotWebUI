@@ -16,3 +16,4 @@ streamlit
 libmagic
 bs4
 gradio
+boto3
