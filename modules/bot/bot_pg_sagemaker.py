@@ -5,8 +5,8 @@
 import json
 import os
 
-from langchain import SagemakerEndpoint
-from langchain.chains import RetrievalQAWithSourcesChain
+from langchain import SagemakerEndpoint, LLMChain
+from langchain.chains import RetrievalQAWithSourcesChain, StuffDocumentsChain, ConversationalRetrievalChain
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
@@ -46,6 +46,7 @@ def build_llm():
     content_handler = ContentHandler()
     endpoint_name = "pytorch-inference-2023-09-14-03-28-18-787"
     endpoint_region = os.environ.get("ENDPOINT_REGION", "us-east-1")
+    # 需要做参数化
 
     print("endpoint_name " + endpoint_name)
     llm = SagemakerEndpoint(
@@ -61,39 +62,88 @@ openai_embeddings = build_embeddings()
 CHAT_MEMORY = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 
-def build_chain(collection_name="s3faq"):
-    print("Database collection name ---> " + collection_name)
-
-    # 历史存储器
-    memory = ConversationBufferMemory(memory_key="chat_histo:qry", return_messages=True)
-
+def build_chain(collection_name="s3faq", conversational=True):
     # 大语言模型
     llm = build_llm();
 
-    staff_question_prompt_template = """Given the following extracted parts of a long document and a question, create a final answer with references ("SOURCES"). 
-            If you don't know the answer, just say that you don't know. Don't try to make up an answer.
-            ALWAYS return a "Source" part in your answer. Not answer more than 100 tokens.
-            Respond in Chinese.
+    print(f"knowledge bases on collection {collection_name} ")
 
-            QUESTION: {question}
+    openai_embeddings = build_embeddings()
+
+    if conversational is True:
+        # memory
+
+        # 问题生成器类型
+        _template = """鉴于以下对话和后续问题，将后续问题改写为
+            是一个独立的问题，用其原始语言。确保避免使用任何不清楚的代词。
+            Chat History:
+            {chat_history}
+            接下来的提问: {question}
+            转化后的问题:"""
+        CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
+        condense_question_chain = LLMChain(
+            llm=llm,
+            prompt=CONDENSE_QUESTION_PROMPT,
+            verbose=True
+        )
+
+        # 常规的QA_Chain
+        template = """使用以下上下文来回答最后的问题。
+            如果你不知道答案，就说你不知道，不要试图编造答案。
+            最多使用三个句子，并尽可能保持答案简洁。
+            总是说“谢谢您的提问！”在答案的开头。始终在答案中返回“来源”部分。 
+            {context}
+            问题: {question}
+            我的答案是:"""
+        QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+        qa_chain = LLMChain(llm=llm, prompt=QA_CHAIN_PROMPT, verbose=True)
+
+        doc_prompt = PromptTemplate(
+            template="Content: {page_content}\nSource: {source}",
+            input_variables=["page_content", "source"],
+        )
+        #
+        final_qa_chain = StuffDocumentsChain(
+            llm_chain=qa_chain,
+            document_variable_name="context",
+            document_prompt=doc_prompt,
+            verbose=True
+        )
+
+        qa = ConversationalRetrievalChain(
+            question_generator=condense_question_chain,
+            retriever=build_retriever(openai_embeddings, collection_name),
+            memory=CHAT_MEMORY,
+            verbose=True,
+            combine_docs_chain=final_qa_chain,
+        )
+        # qa.__init__()
+        return qa
+    else:
+        staff_question_prompt_template = """
+            给定长文档和问题的以下提取部分，使用参考文献（“Source”）创建最终答案。
+            如果你不知道答案，就说你不知道。不要试图编造答案。
+            始终在答案中返回“Source”部分。不回答超过100个字符。
+
+            问题: {question}
             =========
             {summaries}
             =========
-            FINAL ANSWER IN Chinese:"""
-    STAFF_QUESTION_PROMPT: PromptTemplate = PromptTemplate(template=staff_question_prompt_template,
-                                                           input_variables=["summaries", "question"])
-    chain_type_kwargs = {
-        "prompt": STAFF_QUESTION_PROMPT,  # Prompts
-        "verbose": True
-    }
-    qa = RetrievalQAWithSourcesChain.from_chain_type(
-        retriever=build_retriever(openai_embeddings, collection_name),
-        llm=llm,
-        verbose=True,
-        chain_type_kwargs=chain_type_kwargs
-    )
+            请最终以中文回答问题。"""
+        STAFF_QUESTION_PROMPT: PromptTemplate = PromptTemplate(template=staff_question_prompt_template,
+                                                               input_variables=["summaries", "question"])
+        chain_type_kwargs = {
+            "prompt": STAFF_QUESTION_PROMPT,  # Prompts
+            "verbose": True
+        }
+        qa = RetrievalQAWithSourcesChain.from_chain_type(
+            retriever=build_retriever(openai_embeddings, collection_name),
+            llm=llm,
+            verbose=True,
+            chain_type_kwargs=chain_type_kwargs
+        )
 
-    return qa
+        return qa
 
 
 def run_chain(chain, prompt: str, history=[]):

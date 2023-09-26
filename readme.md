@@ -73,3 +73,7 @@ sdk访问:   https://prod.us-west-2.frontend.bedrock.aws.dev/
   "body": "{\"inputText\":\"waht's genai?\",\"textGenerationConfig\":{\"maxTokenCount\":512,\"stopSequences\":[],\"temperature\":0,\"topP\":0.9}}"
 }
 ```
+
+## AWS 内部workshop链接
+
+https://catalog.us-east-1.prod.workshops.aws/workshops/486e5ddd-b414-4e7f-9bfd-3884a89353e3/zh-CN/01introduction

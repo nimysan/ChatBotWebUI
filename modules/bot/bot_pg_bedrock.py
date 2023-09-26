@@ -3,12 +3,9 @@
 """
 
 import json
-import os
-from typing import Dict
 
 from langchain import LLMChain
 from langchain.chains import RetrievalQAWithSourcesChain, StuffDocumentsChain, ConversationalRetrievalChain
-from langchain.embeddings import BedrockEmbeddings
 from langchain.llms.bedrock import Bedrock
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.memory import ConversationBufferMemory
