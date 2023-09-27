@@ -6,7 +6,11 @@ from sagemaker.pytorch.model import PyTorchModel
 
 
 def deploy_llm_sm():
-    sagemaker_session = sagemaker.Session()
+    my_session = boto3.session.Session()
+    my_region = my_session.region_name
+    session = boto3.Session(region_name=my_region)
+    sagemaker_session = sagemaker.Session(session)
+
     bucket = sagemaker_session.default_bucket()
     # role = sagemaker.get_execution_role()
     print(f"sagemaker bucket is {bucket}")
