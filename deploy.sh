@@ -4,7 +4,8 @@ if [ ! -f config.json ]; then
   cp config-example.json config.json
 fi
 
-export TMPDIR=/home/ec2-user/tmp #防止pip install no-space-left error
+mkdir -p /home/ec2-user/tmp
+export TMPDIR=/home/ec2-user/tmp #防止pip install no-space-left error"
 python3 -m venv /home/ec2-user/botenv
 app_env_home=/home/ec2-user/botenv
 
