@@ -1,6 +1,8 @@
 import json
 
+import boto3
 import gradio as gr
+import sagemaker
 from sagemaker import Predictor
 from sagemaker.base_deserializers import JSONDeserializer
 from sagemaker.base_serializers import JSONSerializer
@@ -12,10 +14,15 @@ from modules.sagemaker.deploy_endpoint import deploy_llm_sm
 
 def call_llm_sm(endpoint, input):
     print(f"endpoint")
-    predictor = Predictor(endpoint,
-                          serializer=JSONSerializer(),
-                          deserializer=JSONDeserializer()
-                          )
+    my_session = boto3.session.Session(region_name="us-east-1")
+    print(f"my_session.region_name is {my_session.region_name}")
+    sagemaker_session = sagemaker.Session(boto_session=my_session)
+    predictor = Predictor(
+        endpoint,
+        sagemaker_session=sagemaker_session,
+        serializer=JSONSerializer(),
+        deserializer=JSONDeserializer()
+    )
     inputs = {
         "ask": input
     }
