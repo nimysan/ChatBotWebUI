@@ -12,7 +12,7 @@ def deploy_llm_sm():
     bucket = sagemaker_session.default_bucket()
     # role = sagemaker.get_execution_role()
     print(f"sagemaker bucket is {bucket}")
-    s3_client = boto3.client("s3");
+    s3_client = boto3.session(my_session).client("s3");
     print(f" cmd is {os.getcwd()}")
     model_tar = "model.tar.gz"
     response = s3_client.upload_file("./modules/sagemaker/" + model_tar, bucket, model_tar)
@@ -32,6 +32,7 @@ def deploy_llm_sm():
     model_name = "ChatGLM-6B-SageMaker";
     role = "arn:aws:iam::390468416359:role/accelerate_sagemaker_execution_role";  # how to create it
     model = PyTorchModel(
+        sagemaker_session=sagemaker_session,
         name=model_name,
         model_data=model_data,
         entry_point=entry_point,
