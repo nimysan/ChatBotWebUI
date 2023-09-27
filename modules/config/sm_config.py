@@ -6,6 +6,9 @@ from sagemaker.base_deserializers import JSONDeserializer
 from sagemaker.base_serializers import JSONSerializer
 from sagemaker.huggingface import HuggingFacePredictor
 
+from modules.sagemaker.deploy_embedding_endpoint import deploy_embeddings_model
+from modules.sagemaker.deploy_endpoint import deploy_llm_sm
+
 
 def call_llm_sm(endpoint, input):
     print(f"endpoint")
@@ -26,21 +29,12 @@ def call_llm_sm(endpoint, input):
 
 
 def call_embeddings(endpoint, input):
-    predictor = Predictor(endpoint);
+    # predictor = Predictor(endpoint);
     hfp = HuggingFacePredictor(endpoint)
     inference_response = hfp.predict({
         "inputs": input
     })
-    # input_str = json.dumps({"inputs": input})
-    # print(input_str)
-    # response = predictor.predict(input)
     return inference_response
-    # input_text = ["我喜欢读书", "我喜欢跑步"]
-    # response = predictor.predict(input_text)
-    # print(response)
-    # # embedding = hfp.predict({'inputs': '解构市场需求 深度产品分析 价格选的好， 出单没烦恼！'})[0][0]
-    # # print(embedding)
-    # return "hello"
 
 
 with gr.Blocks() as sm_configure_page:
@@ -50,8 +44,10 @@ with gr.Blocks() as sm_configure_page:
         Start typing below to see the output.
         """)
     with gr.Row() as deploy_action:
-        gr.Button(value="部署ChatGLM")
-        gr.Button(value="部署Embedding")
+        llm_deploy_btn = gr.Button(value="部署ChatGLM")
+
+        # llm_deploy_btn.click(fn=)
+        embeddings_deploy_btn = gr.Button(value="部署Embedding")
 
     with gr.Column() as sagemaker_llm_config:
         sample_prompts = """
@@ -76,10 +72,13 @@ with gr.Blocks() as sm_configure_page:
 
     with gr.Column() as sagemaker_embedding_config:
         llm_endpoint_embedding = gr.Text(label="SageMaker Endpoint name for RAG(Embedding)",
-                                         value="huggingface-pytorch-inference-2023-09-26-09-34-51-087")
+                                         value="huggingface-pytorch-inference-2023-09-27-01-19-46-799")
         llm_endpoint_embedding_input = gr.Text(label="Input your question here", value="this is happy person")
         llm_endpoint_embedding_output = gr.Text(label="Output will display here")
         try_embedding_btn = gr.Button(value="Test Embedding")
 
         try_embedding_btn.click(call_embeddings, inputs=[llm_endpoint_embedding, llm_endpoint_embedding_input],
                                 outputs=[llm_endpoint_embedding_output])
+
+        embeddings_deploy_btn.click(fn=deploy_embeddings_model, inputs=[], outputs=[llm_endpoint_embedding])
+        llm_deploy_btn.click(fn=deploy_llm_sm, inputs=[], outputs=[llm_endpoint])
