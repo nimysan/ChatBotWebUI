@@ -12,7 +12,8 @@ def deploy_llm_sm():
     bucket = sagemaker_session.default_bucket()
     # role = sagemaker.get_execution_role()
     print(f"sagemaker bucket is {bucket}")
-    s3_client = boto3.session(my_session).client("s3");
+
+    s3_client = my_session.client("s3")
     print(f" cmd is {os.getcwd()}")
     model_tar = "model.tar.gz"
     response = s3_client.upload_file("./modules/sagemaker/" + model_tar, bucket, model_tar)
