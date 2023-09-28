@@ -8,7 +8,7 @@ from sagemaker.pytorch import PyTorchModel
 from sagemaker.serializers import JSONSerializer
 from sagemaker.deserializers import JSONDeserializer
 
-from modules.sagemaker.ec2_utils import get_instance_region
+from modules.sagemaker.ec2_utils import get_region_from_ec2_metadata
 
 
 class SageMakerContext:
@@ -16,7 +16,7 @@ class SageMakerContext:
     def __init__(self, region):
         self.region = region
         if self.region is None:
-            self.region = get_instance_region()
+            self.region = get_region_from_ec2_metadata()
 
     def _sm_session(self):
         return sagemaker.Session(boto3.session.Session(region_name=self.region))
