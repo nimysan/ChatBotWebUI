@@ -1,6 +1,19 @@
 import gradio as gr
 
 from modules.sagemaker.sm_utils import SageMakerContext
+from modules.config.bot_config import write_config
+
+
+def save_sm_config(endpoint, embeddings_endpoint):
+    """
+    保存
+    :param endpoint:
+    :param embeddings_endpoint:
+    :return:
+    """
+    write_config("sm_endpoint", endpoint)
+    write_config("sm_embeddings_endpoint", embeddings_endpoint)
+
 
 with gr.Blocks() as sm_configure_page:
     sagemaker_context = SageMakerContext(region="us-east-1")  # TODO close region for ec2
@@ -29,7 +42,8 @@ with gr.Blocks() as sm_configure_page:
             ====================================
              AI:
         """
-        llm_endpoint = gr.Text(label="SageMaker Endpoint name for RAG(LLM)", value="chatglm-6b-2023-09-26-08-36-32-960")
+        llm_endpoint = gr.Text(label="SageMaker Endpoint name for RAG(LLM)",
+                               value="ChatGLM-6B-SageMaker-2023-09-27-14-35-40-172")
         llm_endpoint_input = gr.Text(label="Input your question here", value=sample_prompts)
         llm_endpoint_output = gr.Text(label="Output will display here")
         try_llm_btn = gr.Button(value="Test LLM")
@@ -39,7 +53,7 @@ with gr.Blocks() as sm_configure_page:
 
     with gr.Column() as sagemaker_embedding_config:
         llm_endpoint_embedding = gr.Text(label="SageMaker Endpoint name for RAG(Embedding)",
-                                         value="huggingface-pytorch-inference-2023-09-27-01-19-46-799")
+                                         value="huggingface-pytorch-inference-2023-09-28-05-38-44-863")
         llm_endpoint_embedding_input = gr.Text(label="Input your question here", value="this is happy person")
         llm_endpoint_embedding_output = gr.Text(label="Output will display here")
         try_embedding_btn = gr.Button(value="Test Embedding")
@@ -51,3 +65,7 @@ with gr.Blocks() as sm_configure_page:
         embeddings_deploy_btn.click(fn=sagemaker_context.deploy_embeddings_model, inputs=[],
                                     outputs=[llm_endpoint_embedding])
         llm_deploy_btn.click(fn=sagemaker_context.deploy_llm_sm, inputs=[], outputs=[llm_endpoint])
+
+    with gr.Column() as sagemaker_embedding_save:
+        save_btn = gr.Button(value="Save")
+        save_btn.click(fn=save_sm_config, inputs=[llm_endpoint, llm_endpoint_embedding], outputs=[])

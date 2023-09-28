@@ -86,3 +86,17 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/486e5ddd-b414-4e7f-9bfd-3
 ## 内部pip安装的问题
 
 > 无论是nopace, 还是pip install被killed，在将实例从t4g.micro修改到t4g.meduim后， 问题都解决了
+
+## 知识入库的向量和查询时候的向量需要用一致的模型
+
+否则可能出现以下问题
+
+1. 维度不一样无法查询
+
+```bash
+# openaishi 1536  shibing624/text2vec-bge-large-chinese  1024 dim
+sqlalchemy.exc.DataError: (psycopg2.errors.DataException) different vector dimensions 1536 and 1024
+
+```
+
+2. 查询不准确
