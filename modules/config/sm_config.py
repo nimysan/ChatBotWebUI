@@ -1,50 +1,9 @@
-import json
-
-import boto3
 import gradio as gr
-import sagemaker
-from sagemaker import Predictor
-from sagemaker.base_deserializers import JSONDeserializer
-from sagemaker.base_serializers import JSONSerializer
-from sagemaker.huggingface import HuggingFacePredictor
 
-from modules.sagemaker.deploy_embedding_endpoint import deploy_embeddings_model
-from modules.sagemaker.deploy_endpoint import deploy_llm_sm
-
-
-def call_llm_sm(endpoint, input):
-    print(f"endpoint")
-    my_session = boto3.session.Session(region_name="us-east-1")
-    print(f"my_session.region_name is {my_session.region_name}")
-    sagemaker_session = sagemaker.Session(boto_session=my_session)
-    predictor = Predictor(
-        endpoint,
-        sagemaker_session=sagemaker_session,
-        serializer=JSONSerializer(),
-        deserializer=JSONDeserializer()
-    )
-    inputs = {
-        "ask": input
-    }
-    inference_response = predictor.predict(inputs)
-    return inference_response["answer"]
-
-
-"""
-2023-09-26T09:30:07,729 [INFO ] W-shibing624__text2vec-bge--1-stdout com.amazonaws.ml.mms.wlm.WorkerLifeCycle - mms.service.PredictionException: "Unknown task sentence-similarity, available tasks are ['audio-classification', 'automatic-speech-recognition', 'conversational', 'depth-estimation', 'document-question-answering', 'feature-extraction', 'fill-mask', 'image-classification', 'image-segmentation', 'image-to-text', 'ner', 'object-detection', 'question-answering', 'sentiment-analysis', 'summarization', 'table-question-answering', 'text-classification', 'text-generation', 'text2text-generation', 'token-classification', 'translation', 'video-classification', 'visual-question-answering', 'vqa', 'zero-shot-classification', 'zero-shot-image-classification', 'zero-shot-object-detection', 'translation_XX_to_YY']" : 400
-"""
-
-
-def call_embeddings(endpoint, input):
-    # predictor = Predictor(endpoint);
-    hfp = HuggingFacePredictor(endpoint)
-    inference_response = hfp.predict({
-        "inputs": input
-    })
-    return inference_response
-
+from modules.sagemaker.sm_utils import SageMakerContext
 
 with gr.Blocks() as sm_configure_page:
+    sagemaker_context = SageMakerContext(region="us-east-1")  # TODO close region for ec2
     gr.Markdown(
         """
         # 配置SageMaker
@@ -75,7 +34,8 @@ with gr.Blocks() as sm_configure_page:
         llm_endpoint_output = gr.Text(label="Output will display here")
         try_llm_btn = gr.Button(value="Test LLM")
 
-        try_llm_btn.click(call_llm_sm, inputs=[llm_endpoint, llm_endpoint_input], outputs=[llm_endpoint_output])
+        try_llm_btn.click(sagemaker_context.call_llm_sm, inputs=[llm_endpoint, llm_endpoint_input],
+                          outputs=[llm_endpoint_output])
 
     with gr.Column() as sagemaker_embedding_config:
         llm_endpoint_embedding = gr.Text(label="SageMaker Endpoint name for RAG(Embedding)",
@@ -84,8 +44,10 @@ with gr.Blocks() as sm_configure_page:
         llm_endpoint_embedding_output = gr.Text(label="Output will display here")
         try_embedding_btn = gr.Button(value="Test Embedding")
 
-        try_embedding_btn.click(call_embeddings, inputs=[llm_endpoint_embedding, llm_endpoint_embedding_input],
+        try_embedding_btn.click(sagemaker_context.call_embeddings,
+                                inputs=[llm_endpoint_embedding, llm_endpoint_embedding_input],
                                 outputs=[llm_endpoint_embedding_output])
 
-        embeddings_deploy_btn.click(fn=deploy_embeddings_model, inputs=[], outputs=[llm_endpoint_embedding])
-        llm_deploy_btn.click(fn=deploy_llm_sm, inputs=[], outputs=[llm_endpoint])
+        embeddings_deploy_btn.click(fn=sagemaker_context.deploy_embeddings_model, inputs=[],
+                                    outputs=[llm_endpoint_embedding])
+        llm_deploy_btn.click(fn=sagemaker_context.deploy_llm_sm, inputs=[], outputs=[llm_endpoint])
