@@ -98,11 +98,15 @@ class SageMakerContext:
     def deploy_embeddings_model(self):
         role = "arn:aws:iam::390468416359:role/accelerate_sagemaker_execution_role";  # how to create it
         # Hub Model configuration. https://huggingface.co/models
+        # hub = {
+        #     'HF_MODEL_ID': 'shibing624/text2vec-bge-large-chinese',
+        #     'HF_TASK': 'feature-extraction'
+        # }
+
         hub = {
-            'HF_MODEL_ID': 'shibing624/text2vec-bge-large-chinese',
+            'HF_MODEL_ID': 'BAAI/bge-large-zh',
             'HF_TASK': 'feature-extraction'
         }
-
         # create Hugging Face Model Class
         huggingface_model = HuggingFaceModel(
             transformers_version='4.26.0',
@@ -115,7 +119,7 @@ class SageMakerContext:
         # deploy model to SageMaker Inference
         predictor = huggingface_model.deploy(
             initial_instance_count=1,  # number of instances
-            instance_type='ml.m5.xlarge'  # ec2 instance type
+            instance_type='ml.g4dn.xlarge'  # ec2 instance type
         )
 
         return predictor;

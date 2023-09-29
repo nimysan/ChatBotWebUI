@@ -3,11 +3,14 @@ from typing import List, Tuple
 import gradio as gr
 # from langchain.document_loaders import SeleniumURLLoader
 from langchain.docstore.document import Document
+from langchain.embeddings import SagemakerEndpointEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.pgvector import PGVector
 from langchain.document_loaders.web_base import WebBaseLoader
 
+from modules.bot.bot_pg_sagemaker import EmbeddingContentHandler
 from modules.config import bot_config
+from modules.config.bot_config import get_config
 from modules.vectorstore.store_pg import compose_pg_connection_string
 
 
@@ -20,7 +23,15 @@ def import_knowledge_function(urls, collection_name, t_clean_before_import, samp
     # url = "https://docs.python.org/3.9/" sample url
     print(f"clean is {t_clean_before_import}")
     try:
-        embeddings = bot_config.get_embeddings_by_key("openai")
+        # embeddings = bot_config.get_embeddings_by_key("openai")
+        embedding_content_handler = EmbeddingContentHandler()
+
+        embeddings = SagemakerEndpointEmbeddings(
+            # credentials_profile_name="credentials-profile-name",
+            endpoint_name=get_config("sm_embeddings_endpoint"),
+            region_name="us-east-1",
+            content_handler=embedding_content_handler,
+        )
         connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
         # connection_string = compose_pg_connection_string(bot_config.get_config(""))
 

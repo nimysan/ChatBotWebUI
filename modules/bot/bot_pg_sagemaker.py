@@ -57,8 +57,8 @@ class EmbeddingContentHandler(EmbeddingsContentHandler):
             The transformed bytes input.
         """
         # Example: inference.py expects a JSON string with a "inputs" key:
-        print(f"input is {inputs}")
-        input_str = json.dumps({"inputs": inputs, **model_kwargs})
+        print(f"input is {len(inputs)}")
+        input_str = json.dumps({"inputs": inputs[1:3], **model_kwargs})
         return input_str.encode("utf-8")
 
     def transform_output(self, output: bytes) -> List[List[float]]:
@@ -74,9 +74,14 @@ class EmbeddingContentHandler(EmbeddingsContentHandler):
         """
         # Example: inference.py returns a JSON string with the list of
         # embeddings in a "vectors" key:
+
+        # 参考实现： https://github.com/aws-solutions-library-samples/guidance-for-custom-search-of-an-enterprise-knowledge-base-on-aws/blob/jupyter/data_load/smart_search.py
         response_json = json.loads(output.read().decode("utf-8"))
-        print(f"embeddings response is: {response_json}")
         return response_json[0][0]
+        # if language.find("chinese") >= 0:
+        #
+        # else:
+        #     return response_json
 
 
 embedding_content_handler = EmbeddingContentHandler()

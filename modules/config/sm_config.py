@@ -53,7 +53,7 @@ with gr.Blocks() as sm_configure_page:
 
     with gr.Column() as sagemaker_embedding_config:
         llm_endpoint_embedding = gr.Text(label="SageMaker Endpoint name for RAG(Embedding)",
-                                         value="huggingface-pytorch-inference-2023-09-28-05-38-44-863")
+                                         value="huggingface-pytorch-inference-2023-09-28-08-24-28-262")
         llm_endpoint_embedding_input = gr.Text(label="Input your question here", value="this is happy person")
         llm_endpoint_embedding_output = gr.Text(label="Output will display here")
         try_embedding_btn = gr.Button(value="Test Embedding")
