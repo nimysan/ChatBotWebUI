@@ -1,20 +1,20 @@
-#MD目录导入
+# MD目录导入
 
 import os
 from typing import List, Tuple
 
 from langchain.docstore.document import Document
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings, BedrockEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-faq_dir=os.environ.get("FAQ_PATH")
-collection_name=os.environ.get("COLLECTION_NAME")
-
+faq_dir = os.environ.get("FAQ_PATH")
+collection_name = os.environ.get("COLLECTION_NAME")
 
 from langchain.document_loaders import SeleniumURLLoader
 from langchain.document_loaders import UnstructuredURLLoader
 
 from langchain.document_loaders import WebBaseLoader
+
 urls = [
     "http://jfwiki.streamax.com:7503/web/#/172/1275",
 ]
@@ -26,8 +26,8 @@ print(data)
 
 # 初始化文本分割器
 text_splitter = RecursiveCharacterTextSplitter(
-  chunk_size=20,
-  chunk_overlap=0
+    chunk_size=20,
+    chunk_overlap=0
 )
 print("==============================\n")
 texts = text_splitter.split_documents(data)
@@ -38,10 +38,14 @@ print("==============================\n")
 print(texts[3])
 print("==============================\n")
 
-embeddings = OpenAIEmbeddings()
+embeddings = BedrockEmbeddings(
+    region_name="us-east-1",
+    model_id="amazon.titan-e1t-medium"
+)
 
 # PG Vector 向量存储库
 from langchain.vectorstores.pgvector import PGVector
+
 CONNECTION_STRING = PGVector.connection_string_from_db_params(
     driver=os.environ.get("PGVECTOR_DRIVER", "psycopg2"),
     host=os.environ.get("PGVECTOR_HOST", "localhost"),
@@ -52,7 +56,7 @@ CONNECTION_STRING = PGVector.connection_string_from_db_params(
 )
 
 print(CONNECTION_STRING)
-#将文档存入向量
+# 将文档存入向量
 db = PGVector.from_documents(
     embedding=embeddings,
     documents=texts,

@@ -3,29 +3,21 @@
 """
 
 import json
-import os
-from abc import ABC
-from typing import List
+from typing import Dict, List
 
 from langchain import SagemakerEndpoint, LLMChain
 from langchain.chains import RetrievalQAWithSourcesChain, StuffDocumentsChain, ConversationalRetrievalChain
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.embeddings.base import Embeddings
+from langchain.embeddings import SagemakerEndpointEmbeddings
+from langchain.embeddings.sagemaker_endpoint import EmbeddingsContentHandler
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
-from modules.bot.bot import KnowledgeBot
 from modules.bot.bot_pg_chatgpt import build_embeddings
 from modules.config import bot_config
 from modules.config.bot_config import get_config
 from modules.vectorstore import store_pg
 from modules.vectorstore.store_pg import compose_pg_connection_string
-
-from typing import Dict, List
-from langchain.embeddings import SagemakerEndpointEmbeddings
-from langchain.embeddings.sagemaker_endpoint import EmbeddingsContentHandler
-import json
 
 MAX_HISTORY_LENGTH = 5
 

@@ -2,137 +2,138 @@
 基于SageMaker Endpoint的机器人组装程序 （每个模型根据自己的特性来定制prompt)
 """
 
-import json
-
 from langchain import LLMChain
 from langchain.chains import RetrievalQAWithSourcesChain, StuffDocumentsChain, ConversationalRetrievalChain
-from langchain.llms.bedrock import Bedrock
-from langchain.llms.sagemaker_endpoint import LLMContentHandler
+from langchain.embeddings.bedrock import BedrockEmbeddings
+from langchain.llms import Bedrock
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
 from modules.config import bot_config
-from modules.config.embedding_config import get_embeddings_by_name, EMBEDDINGS_BEDROCK
 from modules.vectorstore import store_pg
 from modules.vectorstore.store_pg import compose_pg_connection_string
 
 MAX_HISTORY_LENGTH = 5
 
 
+class BedrockKnowledgeBot:
+    """
+        a knowledge bot with Amazon Bedrock, 使用Claude模型
+    """
 
-
-def build_retriever(embeddings, collection_name, retrieve_size=2):
-    connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
-    print(f"build_retriever store for {connection_string} with collection name {collection_name}")
-    return store_pg.as_retriever(embeddings, collection_name, connection_string, retrieve_size)
-
-
-class ContentHandler(LLMContentHandler):
-    content_type = "application/json"
-    accepts = "application/json"
-
-    def transform_input(self, prompt: str, model_kwargs: dict) -> bytes:
-        input_str = json.dumps({"inputs": prompt})
-        return input_str.encode('utf-8')
-
-    def transform_output(self, output: bytes) -> str:
-        response_json = json.loads(output.read())
-        print(f"xx {response_json} ")
-        # return response_json["answer"]
-        return response_json[0]['generated_text']
-
-
-# 构造大语言模型
-def build_llm():
-    return Bedrock(
-        credentials_profile_name="bedrock-admin",
-        model_id="amazon.titan-tg1-large"
-    )
-
-
-embeddings = get_embeddings_by_name(EMBEDDINGS_BEDROCK);
-
-CHAT_MEMORY = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-
-def build_chain(collection_name, conversational=True):
-    # 大语言模型
-    llm = build_llm();
-
-    print(f"knowledge bases on collection {collection_name} ")
-
-    if conversational is True:
-        # memory
-
-        # 问题生成器类型
-        _template = """Given the following conversation and a follow up question, rephrase the follow up question to 
-        be a standalone question, in its original language.\ Make sure to avoid using any unclear pronouns. 
-
-        Chat History:
-        {chat_history}
-        Follow Up Input: {question}
-        Standalone question:"""
-        CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
-        condense_question_chain = LLMChain(
-            llm=llm,
-            prompt=CONDENSE_QUESTION_PROMPT,
-            verbose=True
+    def __init__(self, collection_name, conversational_mode):
+        print("SagemakerKnowledgeBot construct method")
+        self.region = "us-east-1"
+        self.embeddings = BedrockEmbeddings(
+            region_name="us-east-1",
+            model_id="amazon.titan-e1t-medium"
         )
+        self.retriever = self.build_retriever(self.embeddings, collection_name)
+        self.chat_history = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.llm = self.build_llm()
+        self.conversational_mode = conversational_mode
+        self.chain = None
 
-        # 常规的QA_Chain
-        template = """Use the following pieces of context to answer the question at the end. 
-        If you don't know the answer, just say that you don't know, don't try to make up an answer. 
-        Use three sentences maximum and keep the answer as concise as possible. 
-        Always say "感谢您的提问!" at the beginning of the answer.  ALWAYS return a "Source" part in your answer. 
-        {context}
-        Question: {question}
-        Helpful Answer:"""
-        QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
-        qa_chain = LLMChain(llm=llm, prompt=QA_CHAIN_PROMPT, verbose=True)
+    def build_retriever(self, embeddings, collection_name, retrieve_size=2):
+        connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
+        print(f"build_retriever store for {connection_string} with collection name {collection_name}")
+        return store_pg.as_retriever(embeddings, collection_name, connection_string, retrieve_size)
 
-        doc_prompt = PromptTemplate(
-            template="Content: {page_content}\nSource: {source}",
-            input_variables=["page_content", "source"],
+    # 构造大语言模型
+    def build_llm(self):
+        llm = Bedrock(
+            # credentials_profile_name="bedrock-admin",
+            model_id="amazon.titan-text-express-v1"
         )
-        #
-        final_qa_chain = StuffDocumentsChain(
-            llm_chain=qa_chain,
-            document_variable_name="context",
-            document_prompt=doc_prompt,
-            verbose=True
-        )
+        return llm
 
-        qa = ConversationalRetrievalChain(
-            question_generator=condense_question_chain,
-            retriever=build_retriever(embeddings, collection_name),
-            memory=CHAT_MEMORY,
-            verbose=True,
-            combine_docs_chain=final_qa_chain,
-        )
-        # qa.__init__()
-        return qa
-    else:
-        staff_question_prompt_template = """Given the following extracted parts of a long document and a question, create a final answer with references ("SOURCES"). 
-        If you don't know the answer, just say that you don't know. Don't try to make up an answer.
-        ALWAYS return a "Source" part in your answer. Not answer more than 100 tokens.
-        Respond in Chinese.
+    def build_chain(self):
+        # 大语言模型
+        llm = self.llm;
 
-        QUESTION: {question}
-        =========
-        {summaries}
-        =========
-        FINAL ANSWER IN Chinese:"""
-        STAFF_QUESTION_PROMPT: PromptTemplate = PromptTemplate(template=staff_question_prompt_template,
-                                                               input_variables=["summaries", "question"])
-        chain_type_kwargs = {
-            "prompt": STAFF_QUESTION_PROMPT,  # Prompts
-            "verbose": True
-        }
-        qa = RetrievalQAWithSourcesChain.from_chain_type(
-            retriever=build_retriever(embeddings, collection_name),
-            llm=llm,
-            verbose=True,
-            chain_type_kwargs=chain_type_kwargs
-        )
+        if self.conversational_mode is True:
+            # memory
 
-        return qa
+            # 问题生成器类型
+            _template = """鉴于以下对话和后续问题，将后续问题改写为
+                是一个独立的问题，用其原始语言。确保避免使用任何不清楚的代词。
+                Chat History:
+                {chat_history}
+                接下来的提问: {question}
+                转化后的问题:"""
+            CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
+            condense_question_chain = LLMChain(
+                llm=llm,
+                prompt=CONDENSE_QUESTION_PROMPT,
+                verbose=True
+            )
+
+            # 常规的QA_Chain
+            template = """使用以下上下文来回答最后的问题。
+                如果你不知道答案，就说你不知道，不要试图编造答案。
+                最多使用三个句子，并尽可能保持答案简洁。
+                总是说“谢谢您的提问！”在答案的开头。始终在答案中返回“来源”部分。 
+                {context}
+                问题: {question}
+                我的答案是:"""
+            QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+            qa_chain = LLMChain(llm=llm, prompt=QA_CHAIN_PROMPT, verbose=True)
+
+            doc_prompt = PromptTemplate(
+                template="Content: {page_content}\nSource: {source}",
+                input_variables=["page_content", "source"],
+            )
+            #
+            final_qa_chain = StuffDocumentsChain(
+                llm_chain=qa_chain,
+                document_variable_name="context",
+                document_prompt=doc_prompt,
+                verbose=True
+            )
+
+            qa = ConversationalRetrievalChain(
+                question_generator=condense_question_chain,
+                retriever=self.retriever,
+                memory=self.chat_history,
+                verbose=True,
+                combine_docs_chain=final_qa_chain,
+            )
+            # qa.__init__()
+            return qa
+        else:
+            staff_question_prompt_template = """
+                给定长文档和问题的以下提取部分，使用参考文献（“Source”）创建最终答案。
+                如果你不知道答案，就说你不知道。不要试图编造答案。
+                始终在答案中返回“Source”部分。不回答超过100个字符。
+    
+                问题: {question}
+                =========
+                {summaries}
+                =========
+                请最终以中文回答问题。"""
+            STAFF_QUESTION_PROMPT: PromptTemplate = PromptTemplate(template=staff_question_prompt_template,
+                                                                   input_variables=["summaries", "question"])
+            chain_type_kwargs = {
+                "prompt": STAFF_QUESTION_PROMPT,  # Prompts
+                "verbose": True
+            }
+            qa = RetrievalQAWithSourcesChain.from_chain_type(
+                retriever=self.retriever,
+                llm=llm,
+                verbose=True,
+                chain_type_kwargs=chain_type_kwargs
+            )
+
+            return qa
+
+    def talk(self, prompt, history=[]):
+        """
+        对话
+        :param prompt:
+        :param history:
+        :return:
+        """
+        if self.chain is None:
+            self.chain = self.build_chain()
+
+        return self.chain({"question": prompt, "chat_history": history})

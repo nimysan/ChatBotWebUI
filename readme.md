@@ -87,6 +87,319 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/486e5ddd-b414-4e7f-9bfd-3
 
 > 无论是nopace, 还是pip install被killed，在将实例从t4g.micro修改到t4g.meduim后， 问题都解决了
 
+## Amazon Bedrock model summary
+
+```json
+
+{
+  "ResponseMetadata": {
+    "RequestId": "40d9024f-8c8d-42fb-9d7a-11dfb06679d9",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "date": "Sat, 07 Oct 2023 06:06:39 GMT",
+      "content-type": "application/json",
+      "content-length": "5729",
+      "connection": "keep-alive",
+      "x-amzn-requestid": "40d9024f-8c8d-42fb-9d7a-11dfb06679d9"
+    },
+    "RetryAttempts": 0
+  },
+  "modelSummaries": [
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-tg1-large",
+      "modelId": "amazon.titan-tg1-large",
+      "modelName": "Titan Text Large",
+      "providerName": "Amazon",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [
+        "FINE_TUNING"
+      ],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-e1t-medium",
+      "modelId": "amazon.titan-e1t-medium",
+      "modelName": "Titan Text Embeddings",
+      "providerName": "Amazon",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "EMBEDDING"
+      ],
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-g1-text-02",
+      "modelId": "amazon.titan-embed-g1-text-02",
+      "modelName": "Titan Text Embeddings v2",
+      "providerName": "Amazon",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "EMBEDDING"
+      ],
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-text-express-v1",
+      "modelId": "amazon.titan-text-express-v1",
+      "modelName": "Titan Text G1 - Express",
+      "providerName": "Amazon",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v1",
+      "modelId": "amazon.titan-embed-text-v1",
+      "modelName": "Titan Embeddings G1 - Text",
+      "providerName": "Amazon",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "EMBEDDING"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/stability.stable-diffusion-xl",
+      "modelId": "stability.stable-diffusion-xl",
+      "modelName": "Stable Diffusion XL",
+      "providerName": "Stability AI",
+      "inputModalities": [
+        "TEXT",
+        "IMAGE"
+      ],
+      "outputModalities": [
+        "IMAGE"
+      ],
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/stability.stable-diffusion-xl-v0",
+      "modelId": "stability.stable-diffusion-xl-v0",
+      "modelName": "Stable Diffusion XL",
+      "providerName": "Stability AI",
+      "inputModalities": [
+        "TEXT",
+        "IMAGE"
+      ],
+      "outputModalities": [
+        "IMAGE"
+      ],
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-grande-instruct",
+      "modelId": "ai21.j2-grande-instruct",
+      "modelName": "J2 Grande Instruct",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-jumbo-instruct",
+      "modelId": "ai21.j2-jumbo-instruct",
+      "modelName": "J2 Jumbo Instruct",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-mid",
+      "modelId": "ai21.j2-mid",
+      "modelName": "Jurassic-2 Mid",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-mid-v1",
+      "modelId": "ai21.j2-mid-v1",
+      "modelName": "Jurassic-2 Mid",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-ultra",
+      "modelId": "ai21.j2-ultra",
+      "modelName": "Jurassic-2 Ultra",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/ai21.j2-ultra-v1",
+      "modelId": "ai21.j2-ultra-v1",
+      "modelName": "Jurassic-2 Ultra",
+      "providerName": "AI21 Labs",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": false,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-instant-v1",
+      "modelId": "anthropic.claude-instant-v1",
+      "modelName": "Claude Instant",
+      "providerName": "Anthropic",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-v1",
+      "modelId": "anthropic.claude-v1",
+      "modelName": "Claude",
+      "providerName": "Anthropic",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-v2",
+      "modelId": "anthropic.claude-v2",
+      "modelName": "Claude",
+      "providerName": "Anthropic",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    },
+    {
+      "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/cohere.command-text-v14",
+      "modelId": "cohere.command-text-v14",
+      "modelName": "Command",
+      "providerName": "Cohere",
+      "inputModalities": [
+        "TEXT"
+      ],
+      "outputModalities": [
+        "TEXT"
+      ],
+      "responseStreamingSupported": true,
+      "customizationsSupported": [],
+      "inferenceTypesSupported": [
+        "ON_DEMAND"
+      ]
+    }
+  ]
+}
+
+
+```
+
 ## 知识入库的向量和查询时候的向量需要用一致的模型
 
 否则可能出现以下问题
