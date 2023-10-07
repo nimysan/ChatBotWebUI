@@ -42,16 +42,21 @@ def write_openai_config(key_input):
     return write_config("openai_key", key_input)
 
 
-def save_sm_config(endpoint, embeddings_endpoint):
+def save_sm_config(llm_endpoint_region, llm_endpoint, llm_endpoint_embedding_region,
+                   llm_endpoint_embedding):
     """
-    保
+    保存
     :param endpoint:
     :param embeddings_endpoint:
     :return:
     """
-    write_config("sagemaker_endpoints", {
-        "llm_endpoint": endpoint,
-        "embeddings_endpoint": embeddings_endpoint
+    write_config("sagemaker_embeddings_endpoint", {
+        "endpoint": llm_endpoint_embedding,
+        "region": llm_endpoint_embedding_region
+    })
+    write_config("sagemaker_llm_endpoint", {
+        "endpoint": llm_endpoint,
+        "region": llm_endpoint_region
     })
     # write_config("sm_embeddings_endpoint", embeddings_endpoint)
 
@@ -69,8 +74,8 @@ with gr.Blocks() as bot_settings_page:
             """
             # Setup your Chatbot
             """)
-        bot_llm_radio = gr.Radio(["bedrock", "sagemaker-endpoint", "openai"], label="LLM", info="LLM for RAG")
-        bot_embeddings_radio = gr.Radio(["bedrock", "sagemaker-endpoint", "openai"], label="Embedding",
+        bot_llm_radio = gr.Radio(["bedrock", "sagemaker", "openai"], label="LLM", info="LLM for RAG")
+        bot_embeddings_radio = gr.Radio(["bedrock", "sagemaker", "openai"], label="Embedding",
                                         info="Embeddings for RAG")
         bot_btn = gr.Button(value="Save&Check")
         bot_btn.click(fn=save_bot, inputs=[bot_llm_radio, bot_embeddings_radio])
@@ -117,6 +122,8 @@ with gr.Blocks() as bot_settings_page:
     AI:"""
                 llm_endpoint = gr.Text(label="SageMaker Endpoint name for RAG(LLM)",
                                        value="ChatGLM-6B-SageMaker-2023-09-27-14-35-40-172")
+                llm_endpoint_region = gr.Text(label="Region SageMaker Endpoint name for RAG",
+                                              value="us-west-2")
                 llm_endpoint_input = gr.Text(label="Input your question here", value=sample_prompts, lines=5)
                 llm_endpoint_output = gr.Text(label="Output will display here")
                 with gr.Row():
@@ -128,6 +135,8 @@ with gr.Blocks() as bot_settings_page:
                                       outputs=[llm_endpoint_output])
 
             with gr.Column() as sagemaker_embedding_config:
+                llm_endpoint_embedding_region = gr.Text(label="Region SageMaker Endpoint name for RAG(Embedding)",
+                                                        value="us-west-2")
                 llm_endpoint_embedding = gr.Text(label="SageMaker Endpoint name for RAG(Embedding)",
                                                  value="huggingface-pytorch-inference-2023-09-28-08-24-28-262")
                 llm_endpoint_embedding_input = gr.Text(label="Input your question here", value="this is happy person")
@@ -144,7 +153,9 @@ with gr.Blocks() as bot_settings_page:
 
         with gr.Column() as sagemaker_embedding_save:
             save_btn = gr.Button(value="Save")
-            save_btn.click(fn=save_sm_config, inputs=[llm_endpoint, llm_endpoint_embedding], outputs=[])
+            save_btn.click(fn=save_sm_config,
+                           inputs=[llm_endpoint_region, llm_endpoint, llm_endpoint_embedding_region,
+                                   llm_endpoint_embedding], outputs=[])
 
     with gr.Accordion("OpenAI"):
         gr.Markdown(

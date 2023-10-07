@@ -34,7 +34,7 @@ def build_retriever(embeddings, collection_name, retrieve_size=2):
     return store_pg.as_retriever(embeddings, collection_name, connection_string, retrieve_size)
 
 
-co = build_retriever(EmbeddingsProvider().embeddings(), "s3titan", 2)
+co = build_retriever(EmbeddingsProvider().get_embeddings("bedrock"), "s3titan", 2)
 bot = BotBuilder(co, False)
 with gr.Blocks(
         theme=gr.themes.Monochrome(),
