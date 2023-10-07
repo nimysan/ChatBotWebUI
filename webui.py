@@ -1,4 +1,5 @@
 import gradio as gr
+import langchain
 
 from modules.config.pg_config import configure_page
 from modules.config.sm_config import sm_configure_page
@@ -8,7 +9,7 @@ from modules.bot.bot_settings import bot_settings_page
 
 # import pydevd_pycharm
 # pydevd_pycharm.settrace('localhost', port=12345, stdoutToServer=True, stderrToServer=True)
-
+langchain.verbose = True
 # 创建多个选项卡
 multi_tab_interface = gr.TabbedInterface(
     interface_list=[chatbot_page, import_web_page, sm_configure_page, configure_page, bot_settings_page],

@@ -24,8 +24,8 @@ def import_knowledge_function(urls, collection_name, t_clean_before_import, samp
     print(f"clean is {t_clean_before_import}")
     try:
         embeddings = BedrockEmbeddings(
-            region_name="us-east-1",
-            model_id="amazon.titan-e1t-medium",
+            region_name="us-west-2",
+            model_id="amazon.titan-embed-text-v1",
             credentials_profile_name="gws"
         )
         connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
