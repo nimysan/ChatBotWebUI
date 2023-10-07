@@ -1,10 +1,8 @@
 from langchain import PromptTemplate, LLMChain
 from langchain.chains import StuffDocumentsChain, ConversationalRetrievalChain, RetrievalQAWithSourcesChain
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.llms import Bedrock
 from langchain.memory import ConversationBufferMemory
 
-from modules.bot.embeddings_builder import EmbeddingsProvider
+from modules.bot.embeddings_provider import EmbeddingsProvider
 from modules.bot.llm_provider import LLMProvider
 from modules.config import bot_config
 from modules.vectorstore import store_pg
