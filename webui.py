@@ -2,7 +2,6 @@ import gradio as gr
 import langchain
 
 from modules.config.pg_config import configure_page
-from modules.config.sm_config import sm_configure_page
 from modules.doc.import_web_doc import component_import_data as import_web_page
 from modules.bot.bot_page import chatbot_page
 from modules.bot.bot_settings import bot_settings_page
@@ -12,8 +11,8 @@ from modules.bot.bot_settings import bot_settings_page
 langchain.verbose = True
 # 创建多个选项卡
 multi_tab_interface = gr.TabbedInterface(
-    interface_list=[chatbot_page, import_web_page, sm_configure_page, configure_page, bot_settings_page],
-    tab_names=['Chat', "FAQ Import", "SageMaker(Deployment) Settings", "VectorStore Settings", "Bot Settings"]
+    interface_list=[chatbot_page, import_web_page, configure_page, bot_settings_page],
+    tab_names=['Chat', "FAQ Import", "VectorStore Settings", "Bot Settings"]
 )
 
 multi_tab_interface.launch(server_name="0.0.0.0")

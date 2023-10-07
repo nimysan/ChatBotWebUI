@@ -37,6 +37,7 @@ def get_pg_config():
 
 
 def write_config(key, value):
+    print(f"the key is {key} with value {value}")
     GLOBAL_CONFIG_OBJECT[key] = value
     save_config(GLOBAL_CONFIG_OBJECT)
 

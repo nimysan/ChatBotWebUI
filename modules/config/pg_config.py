@@ -8,19 +8,7 @@ def write_configuration(*args):
     return write_config("pg_config", args)
 
 
-def write_openai_config(key_input):
-    return write_config("openai_key", key_input)
-
-
 with gr.Blocks() as configure_page:
-    gr.Markdown("配置您的知识库")
-    with gr.Row():
-        okey = get_config("openai_key") or 'sk-xxxxxxxx'
-        t_openai_key = gr.Text(placeholder="请输入您的OpenAI的key", label="OpenAI Key", type="password",
-                               value=okey)
-        t_openai_btn = gr.Button("保存OpenAIKEY")
-        t_openai_btn.click(write_openai_config, inputs=t_openai_key)
-
     with gr.Column() as pg_config:
         local_pg_config = get_config("pg_config") or ["localhost", "5432", "postgres", "postgres", "mysecretpassword"]
         # print(f"local_pg_config is {local_pg_config}")
