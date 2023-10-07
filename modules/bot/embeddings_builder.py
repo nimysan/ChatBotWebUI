@@ -83,11 +83,11 @@ class EmbeddingsProvider:
                 """
         print(f"Embeddings provider type is {embeddings_type}")
         embeddings = None
-        if embeddings_type is "bedrock":
+        if embeddings_type == "bedrock":
             embeddings = self.__build_bedrock_titan_embeddings()
-        elif embeddings_type is "sagemaker":
+        elif embeddings_type == "sagemaker":
             embeddings = self.__build_sagemaker_embeddings()
-        elif embeddings_type is "openai":
+        elif embeddings_type == "openai":
             embeddings = self.__build_openai_embeddings()
         else:
             raise "Embeddings type only allow: bedrock/sagemaker/openai"

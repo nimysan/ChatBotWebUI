@@ -13,7 +13,7 @@ from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
-from modules.bot.bot_pg_chatgpt import build_embeddings
+from modules.bot.refereces.bot_pg_chatgpt import build_embeddings
 from modules.config import bot_config
 from modules.config.bot_config import get_config
 from modules.vectorstore import store_pg

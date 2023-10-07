@@ -19,9 +19,7 @@ def rebuild_bot(knowledge_collection, conversational_mode):
     return ""
 
 
-def list_collections():
-    cos = refresh_collections();
-    return gr.Dropdown.update(choices=cos)
+
 
 
 def save_bedrock_llm(region, model_id):
@@ -170,17 +168,3 @@ with gr.Blocks() as bot_settings_page:
                                value=openapi_key)
         t_openai_btn = gr.Button("Save")
         t_openai_btn.click(write_openai_config, inputs=t_openai_key)
-
-    cos = refresh_collections()
-
-    t_collection_selector = gr.Dropdown(
-        cos, label="Choose knowledge collection", info="Knowledge will bases on this",
-    )
-    t_refresh_collections = gr.Button(value="Load Collections")
-    t_refresh_collections.click(fn=list_collections, outputs=t_collection_selector)
-
-    t_conversation_mode = gr.Checkbox(label="Conversational mode?")
-
-    t_build_bot = gr.Button(value="Build Bot", elem_id="btn")
-    t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode],
-                      outputs=[])

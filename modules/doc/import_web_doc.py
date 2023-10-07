@@ -3,14 +3,12 @@ from typing import List, Tuple
 import gradio as gr
 # from langchain.document_loaders import SeleniumURLLoader
 from langchain.docstore.document import Document
-from langchain.embeddings import SagemakerEndpointEmbeddings, BedrockEmbeddings
+from langchain.embeddings import BedrockEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.pgvector import PGVector
 from langchain.document_loaders.web_base import WebBaseLoader
 
-from modules.bot.bot_pg_sagemaker import EmbeddingContentHandler
 from modules.config import bot_config
-from modules.config.bot_config import get_config
 from modules.vectorstore.store_pg import compose_pg_connection_string
 
 

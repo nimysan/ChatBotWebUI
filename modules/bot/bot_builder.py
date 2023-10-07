@@ -5,38 +5,29 @@ from langchain.llms import Bedrock
 from langchain.memory import ConversationBufferMemory
 
 from modules.bot.embeddings_builder import EmbeddingsProvider
+from modules.bot.llm_provider import LLMProvider
 from modules.config import bot_config
+from modules.vectorstore import store_pg
+from modules.vectorstore.store_pg import compose_pg_connection_string
 
 
 class BotBuilder:
-    def __init__(self, retriever, conversational_mode):
-        print(f"config")
-        self.retriever = retriever
-        self.conversational_mode = conversational_mode
-        self.chain = None
+    def __init__(self):
+        self.embedding_provider = EmbeddingsProvider()
+        self.llm_provider = LLMProvider()
 
-    def build_embeddings(self):
-        """
-        so far, we will use openai
-        :return:
-        """
-        return EmbeddingsProvider().embeddings()
+    def __build_retriever(self, embeddings, collection_name, retrieve_size=2):
+        connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
+        print(f"build_retriever store for {connection_string} with collection name {collection_name}")
+        return store_pg.as_retriever(embeddings, collection_name, connection_string, retrieve_size)
 
-    def build_LLM(self):
-        llm = Bedrock(
-            # credentials_profile_name="bedrock-admin",
-            model_id="anthropic.claude-v2",
-            region_name="us-west-2",
-        )
-        return llm
-
-    def build_chain(self):
+    def build_chain(self, collection_name, conversational_mode, llm_type, embedding_type):
         # 大语言模型
-        llm = self.build_LLM();
+        llm = self.llm_provider.get_llm(llm_type)
+        embeddings = self.embedding_provider.get_embeddings(embedding_type)
+        retriever = self.__build_retriever(embeddings, collection_name, retrieve_size=2)
 
-        if self.conversational_mode is True:
-            # memory
-
+        if conversational_mode is True:
             # 问题生成器类型
             _template = """鉴于以下对话和后续问题，将后续问题改写为
                 是一个独立的问题，用其原始语言。确保避免使用任何不清楚的代词。
@@ -76,7 +67,7 @@ class BotBuilder:
 
             qa = ConversationalRetrievalChain(
                 question_generator=condense_question_chain,
-                retriever=self.retriever,
+                retriever=retriever,
                 memory=ConversationBufferMemory(memory_key="chat_history", return_messages=True),
                 verbose=True,
                 combine_docs_chain=final_qa_chain,
@@ -106,7 +97,7 @@ class BotBuilder:
                 "verbose": True
             }
             qa = RetrievalQAWithSourcesChain.from_chain_type(
-                retriever=self.retriever,
+                retriever=retriever,
                 llm=llm,
                 verbose=True,
                 chain_type_kwargs=chain_type_kwargs
@@ -114,16 +105,16 @@ class BotBuilder:
 
             return qa
 
-    def talk(self, prompt, history=[]):
-        """
-        对话
-        :param prompt:
-        :param history:
-        :return:
-        """
-        if self.chain is None:
-            self.chain = self.build_chain()
-
-        test = self.chain({"question": prompt, "chat_history": history})
-        print(f"chain最终返回值是{test}")
-        return test['answer']
+    # def talk(self, prompt, history=[]):
+    #     """
+    #     对话
+    #     :param prompt:
+    #     :param history:
+    #     :return:
+    #     """
+    #     if self.chain is None:
+    #         self.chain = self.build_chain()
+    #
+    #     test = self.chain({"question": prompt, "chat_history": history})
+    #     print(f"chain最终返回值是{test}")
+    #     return test['answer']
