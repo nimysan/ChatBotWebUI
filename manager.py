@@ -11,8 +11,8 @@ from modules.bot.bot_settings import bot_settings_page
 langchain.verbose = True
 # 创建多个选项卡
 multi_tab_interface = gr.TabbedInterface(
-    interface_list=[chatbot_page],
-    tab_names=['Chat']
+    interface_list=[import_web_page, configure_page, bot_settings_page],
+    tab_names=["FAQ Import", "VectorStore Settings", "Bot Settings"]
 )
 
-multi_tab_interface.launch(server_name="0.0.0.0", server_port=7862)
+multi_tab_interface.launch(server_name="0.0.0.0")

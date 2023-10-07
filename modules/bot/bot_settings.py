@@ -74,9 +74,11 @@ with gr.Blocks() as bot_settings_page:
             """
             # Setup your Chatbot
             """)
-        bot_llm_radio = gr.Radio(["bedrock", "sagemaker", "openai"], label="LLM", info="LLM for RAG")
+        bot_config_value = bot_config.get_config("bot")
+        bot_llm_radio = gr.Radio(["bedrock", "sagemaker", "openai"], label="LLM", info="LLM for RAG",
+                                 value=bot_config_value['llm'])
         bot_embeddings_radio = gr.Radio(["bedrock", "sagemaker", "openai"], label="Embedding",
-                                        info="Embeddings for RAG")
+                                        info="Embeddings for RAG", value=bot_config_value['embeddings'])
         bot_btn = gr.Button(value="Save&Check")
         bot_btn.click(fn=save_bot, inputs=[bot_llm_radio, bot_embeddings_radio])
 
