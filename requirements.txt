@@ -1,4 +1,4 @@
-langchain==0.0.229
+langchain== 0.0.310
 urllib3==1.26.16
 gradio==3.41.2
 pydevd_pycharm
@@ -19,4 +19,3 @@ boto3~=1.28.47
 sagemaker~=2.187.0
 requests~=2.31.0
 pillow~=9.5.0
-psycopg2~=2.9.6
