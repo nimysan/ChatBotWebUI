@@ -25,7 +25,7 @@ def auth_manager(username, password):
     cognito_config = bot_config.get_config("cognito")
     print(f"pool config is {cognito_config}")
     response = client.admin_initiate_auth(
-        UserPoolId=cognito_config['pool'],
+        UserPoolId=cognito_config['poolId'],
         ClientId=cognito_config['clientId'],
         AuthFlow='ADMIN_NO_SRP_AUTH',
         AuthParameters={
