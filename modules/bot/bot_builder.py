@@ -23,7 +23,7 @@ class BotBuilder:
         # 大语言模型
         llm = self.llm_provider.get_llm(llm_type)
         embeddings = self.embedding_provider.get_embeddings(embedding_type)
-        retriever = self.__build_retriever(embeddings, collection_name, retrieve_size=2)
+        retriever = self.__build_retriever(embeddings, collection_name, retrieve_size=5)
 
         if conversational_mode is True:
             # 问题生成器类型

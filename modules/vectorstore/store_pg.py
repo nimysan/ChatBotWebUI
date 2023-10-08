@@ -72,7 +72,8 @@ def refresh_collections():
         with conn:
             print(f"conn {conn}")
             cur = conn.cursor()
-            cur.execute("select distinct name from public.langchain_pg_collection")
+            cur.execute(
+                "select distinct name from public.langchain_pg_collection where name is not null and name != '' order by name asc")
             rows = cur.fetchall()
             # collections = []
             for row in rows:

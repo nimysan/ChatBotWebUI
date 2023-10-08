@@ -19,16 +19,18 @@ def sample_function(*args):
 def import_knowledge_function(urls, collection_name, t_clean_before_import, sample_keywords, chunk_size, chunk_overlap):
     # url = "https://docs.python.org/3.9/" sample url
     print(f"clean is {t_clean_before_import}")
+    urls_array = urls.split(",")
+    print(f"----size {len(urls_array)}")
     try:
         bot_config_value = bot_config.get_config("bot")
         embeddings = EmbeddingsProvider().get_embeddings(bot_config_value["embeddings"])
-        print(f"The embeddings is {embeddings}")
+        # print(f"The embeddings is {embeddings}")
         connection_string = compose_pg_connection_string(*bot_config.get_config("pg_config"))
         # connection_string = compose_pg_connection_string(bot_config.get_config(""))
 
         print(
-            f"#########generate data to {collection_name} from {urls} with keywords: {sample_keywords} pg host {connection_string} ")
-        loader = WebBaseLoader([urls])
+            f"--------$$$$$$$$$#########generate data to {collection_name} from {urls_array} with keywords: {sample_keywords} pg host {connection_string} ")
+        loader = WebBaseLoader(urls_array)
         data = loader.load()
         # loader = SeleniumURLLoader(urls)
         # data = loader.load()
