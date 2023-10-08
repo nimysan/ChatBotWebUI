@@ -43,4 +43,4 @@ def auth_manager(username, password):
         return False
 
 
-bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865)
+bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865, root_path="/manage")

@@ -104,4 +104,4 @@ with gr.Blocks(
             t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode, session_bot],
                               outputs=[config_show, session_bot, msg, chatbot])
 
-chatbot_page.launch(server_name="0.0.0.0", server_port=7860)
+chatbot_page.launch(server_name="0.0.0.0", server_port=7860, root_path="/chat")
