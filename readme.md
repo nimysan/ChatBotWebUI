@@ -83,6 +83,20 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/486e5ddd-b414-4e7f-9bfd-3
 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 /home/ec2-user/.local/bin:/home/ec2-user/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
 
+## EC2获取region
+
+https://repost.aws/questions/QUnvPR1W46TS6wQWdf1sK82w/i-am-getting-401-unauthorized-when-i-hit-meta-data-api
+
+```bash
+
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+
+curl http://169.254.169.254/latest/meta-data/profile -H "X-aws-ec2-metadata-token: $TOKEN"
+
+curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document -H "X-aws-ec2-metadata-token: $TOKEN"| jq -r .region
+
+```
+
 ## 内部pip安装的问题
 
 > 无论是nopace, 还是pip install被killed，在将实例从t4g.micro修改到t4g.meduim后， 问题都解决了
