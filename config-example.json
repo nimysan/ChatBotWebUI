@@ -7,6 +7,10 @@
     "mysecretpassword"
   ],
   "openai_key": "sk-xxxxx",
+  "cognito": {
+    "poolId": "test",
+    "clientId": "test"
+  },
   "bedrock_llm": {
     "region": "us-west-2",
     "model_id": "anthropic.claude-v2"

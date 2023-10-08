@@ -2,6 +2,7 @@ import gradio as gr
 import langchain
 import boto3
 
+from modules.config import bot_config
 from modules.config.pg_config import configure_page
 from modules.doc.import_web_doc import component_import_data as import_web_page
 from modules.config.bot_settings import bot_settings_page
@@ -20,11 +21,11 @@ with gr.Blocks() as bot_manager:
 
 def auth_manager(username, password):
     client = boto3.client('cognito-idp')
-
+    cognito_config = bot_config.get_config("cognito")
     try:
         response = client.admin_initiate_auth(
-            UserPoolId='us-east-1_a1xrQ2abR',
-            ClientId='1thbob5g10mhr6alhnn6eulcq5',
+            UserPoolId=cognito_config['pool'],
+            ClientId=cognito_config['clientId'],
             AuthFlow='ADMIN_NO_SRP_AUTH',
             AuthParameters={
                 'USERNAME': username,
