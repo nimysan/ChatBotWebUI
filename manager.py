@@ -20,28 +20,31 @@ with gr.Blocks() as bot_manager:
 
 
 def auth_manager(username, password):
+    # boto_sess = boto3.Session(region_name="us-west-2")
     client = boto3.client('cognito-idp')
     cognito_config = bot_config.get_config("cognito")
-    try:
-        response = client.admin_initiate_auth(
-            UserPoolId=cognito_config['pool'],
-            ClientId=cognito_config['clientId'],
-            AuthFlow='ADMIN_NO_SRP_AUTH',
-            AuthParameters={
-                'USERNAME': username,
-                'PASSWORD': password
-            }
-        )
+    print(f"pool config is {cognito_config}")
+    response = client.admin_initiate_auth(
+        UserPoolId=cognito_config['pool'],
+        ClientId=cognito_config['clientId'],
+        AuthFlow='ADMIN_NO_SRP_AUTH',
+        AuthParameters={
+            'USERNAME': username,
+            'PASSWORD': password
+        }
+    )
 
-        print(f"----- {response}")
-        return True
-    # except client.exceptions.NotAuthorizedException:
-    #     raise gr.Error("用户名或密码错误")
-
-    except Exception as e:
-        print(f"----- {e}")
-        # print(f"Exception as {e}")
-        return False
+    print(f"---response -- {response}")
+    # return True
+    # try:
+    #
+    # # except client.exceptions.NotAuthorizedException:
+    # #     raise gr.Error("用户名或密码错误")
+    #
+    # except Exception as e:
+    #     print(f"---exception is: {e}")
+    #     # print(f"Exception as {e}")
+    #     return False
 
 
 bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865, root_path="/manage")
