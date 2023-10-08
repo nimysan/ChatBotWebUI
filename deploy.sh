@@ -12,3 +12,4 @@ app_env_home=/home/ec2-user/botenv
 ${app_env_home}/bin/python3 -m pip install --upgrade pip
 ${app_env_home}/bin/pip install --verbose  -r requirements.txt --log pip.log
 nohup ${app_env_home}/bin/python3 -u webui.py >webui.log 2>&1 &
+nohup ${app_env_home}/bin/python3 -u manager.py >manager.log 2>&1 &
