@@ -1,3 +1,5 @@
+import json
+
 import gradio as gr
 
 # from modules.bot import bot_pg_chatgpt
@@ -20,29 +22,52 @@ def run_chain(bot_chain, prompt: str, history=[]):
 bot_builder = BotBuilder()
 
 
-def rebuild_bot(collection_name, conversational_mode):
-    bot_config_value = bot_config.get_config("bot")
-    llm_type = bot_config_value["llm"]
-    embedding_type = bot_config_value["embeddings"]
+def build_chain(collection_name, conversational_mode):
+    print(f"the c name is {collection_name} and mode is {conversational_mode}")
+    config_value = bot_config.get_config("bot")
+    llm_type = config_value["llm"]
+    embedding_type = config_value["embeddings"]
     print(f"### build with {llm_type} and embeddings {embedding_type}")
-    chain = bot_builder.build_chain(collection_name, conversational_mode, bot_config_value["llm"],
-                                    bot_config_value["embeddings"])
-    print(f"rebuild bot")
-    return f"""
+    bot_chain = bot_builder.build_chain(collection_name, conversational_mode, config_value["llm"],
+                                        config_value["embeddings"])
+    return bot_chain
+
+
+def rebuild_bot(collection_name, conversational_mode, session_bot):
+    config_value = bot_config.get_config("bot")
+    llm_type = config_value["llm"]
+    embedding_type = config_value["embeddings"]
+    print(f"### build with {llm_type} and embeddings {embedding_type}")
+    chain = bot_builder.build_chain(collection_name, conversational_mode, config_value["llm"],
+                                    config_value["embeddings"])
+    # print(f"rebuild bot")
+    msg = f"""
    > Chain information with 
    ```json
-   {bot_config_value}
+   {config_value}
    ```
    in collection *{collection_name}* with conversation_mode: {conversational_mode}
    """
+    return [msg, {
+        'c': collection_name,
+        'mode': conversational_mode,
+        'chain': build_chain(collection_name, conversational_mode)
+    }]
 
 
 chain = BotBuilder().build_chain("s3titan", True, "bedrock", "bedrock")
+
+
+def show_session(session_bot):
+    return session_bot
+
+
 with gr.Blocks(
         # theme=gr.themes.Monochrome(),
         # # css="""#btn {background: red; color: red} .abc {background-color:red; font-family: "Comic Sans MS", "Comic Sans",
         # # cursive !important} """
 ) as chatbot_page:
+    session_bot = gr.State({})
     with gr.Row():
         with gr.Column():
             with gr.Row():
@@ -59,26 +84,31 @@ with gr.Blocks(
             t_conversation_mode = gr.Checkbox(label="Conversational mode?")
 
             t_build_bot = gr.Button(value="Build Bot", elem_id="btn")
+            t_show_session = gr.Button(value="show session")
 
             bot_config_value = bot_config.get_config("bot")
             config_show = gr.Markdown("""
             """)
-            t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode],
-                              outputs=[config_show])
+            session_text = gr.TextArea(lines=20)
+            t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode, session_bot],
+                              outputs=[config_show, session_bot])
+            t_show_session.click(fn=show_session, inputs=[session_bot], outputs=[session_text])
         with gr.Row():
             with gr.Column():
                 chatbot = gr.Chatbot()
                 msg = gr.Textbox(label="Input your query")
-                clear = gr.ClearButton([msg, chatbot])
+                clear_btn = gr.ClearButton([msg, chatbot])
 
 
-            def langchain_bot(message, chat_history):
-                resp = chain({"question": message, "chat_history": chat_history})
+            def talk(message, chat_history, state):
+                bot_chain = state['chain']
+                print(f"bot_chain bot: {bot_chain}")
+                resp = bot_chain({"question": message, "chat_history": chat_history})
                 chat_history.append((message, resp['answer']))
                 return "", chat_history
 
 
-            msg.submit(langchain_bot, [msg, chatbot],
+            msg.submit(talk, [msg, chatbot, session_bot],
                        [msg, chatbot])
 
 chatbot_page.launch(server_name="0.0.0.0", server_port=7862)
