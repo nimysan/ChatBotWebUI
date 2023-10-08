@@ -35,6 +35,7 @@ def auth_manager(username, password):
     )
 
     print(f"---response -- {response}")
+    return True
     # return True
     # try:
     #
