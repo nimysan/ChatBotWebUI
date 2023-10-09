@@ -18,6 +18,14 @@ app_env_home=/home/ec2-user/botenv
 ${app_env_home}/bin/python3 -m pip install --upgrade pip
 ${app_env_home}/bin/pip install --verbose  -r requirements.txt --log pip.log
 
+pids=$(ps aux | grep botenv | grep -v "grep" | awk '{print $2}')
+for pid in $pids; do
+    kill -0 $pid  2>/dev/null
+    if [ $? -eq 0 ]; then
+        kill $pid   # 进程存在,可以杀掉
+    fi
+done
+
 export BOT_UNDER_PROXY=Yes
 nohup ${app_env_home}/bin/python3 -u webui.py >webui.log 2>&1 &
 nohup ${app_env_home}/bin/python3 -u manager.py >manager.log 2>&1 &
