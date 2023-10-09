@@ -434,3 +434,7 @@ message": "The size of tensor a (589) must match the size of tensor b (512) at n
 ```bash
 radio.exceptions.Error: 'Failed to import, the error detail is (psycopg2.errors.UndefinedObject) type "vector" does not exist
 ```
+
+## sample model id in Amazon Bedrock
+cohere.command-text-v14
+anthropic.claude-v2

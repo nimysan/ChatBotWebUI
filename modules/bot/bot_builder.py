@@ -1,10 +1,12 @@
-from langchain import PromptTemplate, LLMChain
-from langchain.chains import StuffDocumentsChain, ConversationalRetrievalChain, RetrievalQAWithSourcesChain
+# from langchain import PromptTemplate, LLMChain
+from langchain.chains import StuffDocumentsChain, ConversationalRetrievalChain, RetrievalQAWithSourcesChain, LLMChain
 from langchain.memory import ConversationBufferMemory
+from langchain.prompts import PromptTemplate
 
 from modules.bot.embeddings_provider import EmbeddingsProvider
 from modules.bot.llm_provider import LLMProvider
 from modules.config import bot_config
+from modules.config.bot_config import get_config
 from modules.vectorstore import store_pg
 from modules.vectorstore.store_pg import compose_pg_connection_string
 
@@ -24,10 +26,10 @@ class BotBuilder:
         llm = self.llm_provider.get_llm(llm_type)
         embeddings = self.embedding_provider.get_embeddings(embedding_type)
         retriever = self.__build_retriever(embeddings, collection_name, retrieve_size=5)
-
+        prompts_value = get_config("prompts")
         if conversational_mode is True:
             # 问题生成器类型
-            _template = """鉴于以下对话和后续问题，将后续问题改写为
+            _template = prompts_value['condense_prompt'] or """鉴于以下对话和后续问题，将后续问题改写为
                 是一个独立的问题，用其原始语言。确保避免使用任何不清楚的代词。
                 Chat History:
                 {chat_history}
@@ -41,7 +43,7 @@ class BotBuilder:
             )
 
             # 常规的QA_Chain
-            template = """使用以下上下文来回答最后的问题。
+            template = prompts_value['qa_conversation_prompt'] or """使用以下上下文来回答最后的问题。
                 如果你不知道答案，就说你不知道，不要试图编造答案。
                 最多使用三个句子，并尽可能保持答案简洁。
                 总是说“谢谢您的提问！”在答案的开头。始终在答案中返回“来源”部分。 
@@ -73,7 +75,7 @@ class BotBuilder:
             # qa.__init__()
             return qa
         else:
-            staff_question_prompt_template = """
+            staff_question_prompt_template = prompts_value['qa_prompt'] or """
                 下面将给你一个“问题”和一些“已知信息”，请判断这个“问题”是否可以从“已知信息”中得到答案。
                 若可以从“已知信息”中获取答案，请直接输出答案。
                 若不可以从“已知信息”中获取答案，请回答“根据已知信息无法回答”。ALWAYS return a "SOURCE" part in your answer from.

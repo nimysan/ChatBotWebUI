@@ -2,6 +2,7 @@ import gradio as gr
 
 from modules.bot.bot_builder import BotBuilder
 from modules.config import bot_config
+from modules.utils.common_utils import is_under_proxy
 from modules.vectorstore.store_pg import refresh_collections
 
 
@@ -104,4 +105,7 @@ with gr.Blocks(
             t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode, session_bot],
                               outputs=[config_show, session_bot, msg, chatbot])
 
-chatbot_page.launch(server_name="0.0.0.0", server_port=7860, root_path="/chat")
+if is_under_proxy():
+    chatbot_page.launch(server_name="0.0.0.0", server_port=7860, root_path="/chat")
+else:
+    chatbot_page.launch(server_name="0.0.0.0")

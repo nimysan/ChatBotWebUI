@@ -4,8 +4,10 @@ import boto3
 
 from modules.config import bot_config
 from modules.config.pg_config import configure_page
+from modules.config.prompt_settings import prompt_setting_config
 from modules.doc.import_web_doc import component_import_data as import_web_page
 from modules.config.bot_settings import bot_settings_page
+from modules.utils.common_utils import is_under_proxy
 from modules.vectorstore.store_pg import create_vector_extension
 
 # import pydevd_pycharm
@@ -19,8 +21,8 @@ with gr.Blocks() as bot_manager:
     # 创建多个选项卡
     # gr.LogoutButton()
     multi_tab_interface = gr.TabbedInterface(
-        interface_list=[import_web_page, configure_page, bot_settings_page],
-        tab_names=["FAQ Import", "VectorStore Settings", "Bot Settings"]
+        interface_list=[import_web_page, configure_page, bot_settings_page, prompt_setting_config],
+        tab_names=["FAQ Import", "VectorStore Settings", "Bot Settings", "Prompt Settings"]
     )
 
 
@@ -53,4 +55,7 @@ def auth_manager(username, password):
     #     return False
 
 
-bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865, root_path="/manage")
+if is_under_proxy():
+    bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865, root_path="/manage")
+else:
+    bot_manager.launch(server_name="0.0.0.0", server_port=7865)
