@@ -19,14 +19,12 @@ def rebuild_bot(knowledge_collection, conversational_mode):
     return ""
 
 
-
-
-
 def save_bedrock_llm(region, model_id):
     bot_config.write_config("bedrock_llm", {
         "region": region,
         "model_id": model_id
     })
+    return [region, model_id]
 
 
 def save_bedrock_embeddings(region, model_id):
@@ -34,6 +32,7 @@ def save_bedrock_embeddings(region, model_id):
         "region": region,
         "model_id": model_id
     })
+    return [region, model_id]
 
 
 def write_openai_config(key_input):
@@ -91,14 +90,16 @@ with gr.Blocks() as bot_settings_page:
                 bedrock_llm_region = gr.Textbox(label="Amazon Bedrock Region", value="us-west-2")
                 bedrock_llm_model_id = gr.Textbox(label="Amazon Bedrock Model Id", value="anthropic.claude-v2")
                 btn_save_llm = gr.Button(value="Save")
-                btn_save_llm.click(fn=save_bedrock_llm, inputs=[bedrock_llm_region, bedrock_llm_model_id])
+                btn_save_llm.click(fn=save_bedrock_llm, inputs=[bedrock_llm_region, bedrock_llm_model_id],
+                                   outputs=[bedrock_llm_region, bedrock_llm_model_id])
             with gr.Accordion("Amazon Bedrock Embeddings"):
                 bedrock_embeddings_region = gr.Textbox(label="Amazon Bedrock Region", value="us-west-2")
                 bedrock_embeddings_model_id = gr.Textbox(label="Amazon Bedrock Model Id",
                                                          value="amazon.titan-embed-text-v1")
                 btn_save_embeddings = gr.Button(value="Save")
                 btn_save_embeddings.click(fn=save_bedrock_embeddings,
-                                          inputs=[bedrock_embeddings_region, bedrock_embeddings_model_id])
+                                          inputs=[bedrock_embeddings_region, bedrock_embeddings_model_id],
+                                          outputs=[bedrock_embeddings_region, bedrock_embeddings_model_id])
 
     with gr.Accordion("Amazon SageMaker Endpoints"):
         gr.Markdown(
