@@ -6,10 +6,15 @@ from modules.config import bot_config
 from modules.config.pg_config import configure_page
 from modules.doc.import_web_doc import component_import_data as import_web_page
 from modules.config.bot_settings import bot_settings_page
+from modules.vectorstore.store_pg import create_vector_extension
 
 # import pydevd_pycharm
 # pydevd_pycharm.settrace('localhost', port=12345, stdoutToServer=True, stderrToServer=True)
 langchain.verbose = True
+
+# initialize
+create_vector_extension()
+
 with gr.Blocks() as bot_manager:
     # 创建多个选项卡
     # gr.LogoutButton()

@@ -61,6 +61,16 @@ def put_documents(embeddings, collection_name, texts, connection_string):
     )
     print(f"Success handle documents with: {collection_name}, to : {connection_string}")
 
+def create_vector_extension():
+    config = bot_config.get_pg_config();
+    try:
+        conn = psycopg2.connect(database=config[2], user=config[3], password=config[4], host=config[0], port=config[1])
+        with conn:
+            print(f"conn {conn}")
+            cur = conn.cursor()
+            cur.execute("CREATE EXTENSION vector")
+    except Exception as e:
+        print("e")
 
 def refresh_collections():
     # con_str = connection_string or compose_pg_connection_string(*bot_config.get_pg_config())

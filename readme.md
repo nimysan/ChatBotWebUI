@@ -428,3 +428,9 @@ sqlalchemy.exc.DataError: (psycopg2.errors.DataException) different vector dimen
 
 2. 查询不准确
 message": "The size of tensor a (589) must match the size of tensor b (512) at non-singleton dimension 1"\n}
+
+## vector 
+
+```bash
+radio.exceptions.Error: 'Failed to import, the error detail is (psycopg2.errors.UndefinedObject) type "vector" does not exist
+```
