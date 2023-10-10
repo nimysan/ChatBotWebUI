@@ -438,3 +438,4 @@ radio.exceptions.Error: 'Failed to import, the error detail is (psycopg2.errors.
 ## sample model id in Amazon Bedrock
 cohere.command-text-v14
 anthropic.claude-v2
+anthropic.claude-v1

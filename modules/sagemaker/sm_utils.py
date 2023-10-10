@@ -13,10 +13,14 @@ from modules.sagemaker.ec2_utils import get_region_from_ec2_metadata
 
 class SageMakerContext:
 
-    def __init__(self, region):
+    def __init__(self, region='us-east-1', sagemaker_role=''):
+        """
+        请指定role
+        :param region:
+        :param sagemaker_role:
+        """
         self.region = region
-        if self.region is None:
-            self.region = get_region_from_ec2_metadata()
+        self.sagemaker_role = sagemaker_role
 
     def _sm_session(self):
         return sagemaker.Session(boto3.session.Session(region_name=self.region))
@@ -34,11 +38,13 @@ class SageMakerContext:
         inference_response = predictor.predict(inputs)
         return inference_response["answer"]
 
-    """
-    2023-09-26T09:30:07,729 [INFO ] W-shibing624__text2vec-bge--1-stdout com.amazonaws.ml.mms.wlm.WorkerLifeCycle - mms.service.PredictionException: "Unknown task sentence-similarity, available tasks are ['audio-classification', 'automatic-speech-recognition', 'conversational', 'depth-estimation', 'document-question-answering', 'feature-extraction', 'fill-mask', 'image-classification', 'image-segmentation', 'image-to-text', 'ner', 'object-detection', 'question-answering', 'sentiment-analysis', 'summarization', 'table-question-answering', 'text-classification', 'text-generation', 'text2text-generation', 'token-classification', 'translation', 'video-classification', 'visual-question-answering', 'vqa', 'zero-shot-classification', 'zero-shot-image-classification', 'zero-shot-object-detection', 'translation_XX_to_YY']" : 400
-    """
-
     def call_embeddings(self, endpoint, input_text):
+        """
+        -shibing624__text2vec-bge-
+        :param endpoint:
+        :param input_text:
+        :return:
+        """
         hfp = HuggingFacePredictor(
             sagemaker_session=self._sm_session(),
             endpoint_name=endpoint)
@@ -47,10 +53,10 @@ class SageMakerContext:
         })
         return inference_response
 
-    def deploy_llm_sm(self, role, instance_type="ml.g4dn.2xlarge"):
+    def deploy_llm_sm(self, instance_type="ml.g4dn.2xlarge"):
         sagemaker_session = self._sm_session();
         bucket = sagemaker_session.default_bucket()
-        s3_client = sagemaker_session.client("s3")
+        s3_client = boto3.client("s3")
         print(f" cmd is {os.getcwd()}")
         model_tar = "model.tar.gz"
         response = s3_client.upload_file("./modules/sagemaker/" + model_tar, bucket, model_tar)
@@ -75,7 +81,7 @@ class SageMakerContext:
             model_data=model_data,
             entry_point=entry_point,
             source_dir='./modules/sagemaker/code',
-            role=role,
+            role=self.sagemaker_role,
             framework_version=framework_version,
             py_version=py_version,
             env=model_environment
@@ -96,7 +102,7 @@ class SageMakerContext:
         return predictor
 
     def deploy_embeddings_model(self):
-        role = "arn:aws:iam::390468416359:role/accelerate_sagemaker_execution_role";  # how to create it
+        # role = "arn:aws:iam::390468416359:role/accelerate_sagemaker_execution_role";  # how to create it
         # Hub Model configuration. https://huggingface.co/models
         # hub = {
         #     'HF_MODEL_ID': 'shibing624/text2vec-bge-large-chinese',
@@ -113,7 +119,7 @@ class SageMakerContext:
             pytorch_version='1.13.1',
             py_version='py39',
             env=hub,
-            role=role,
+            role=self.sagemaker_role,
         )
 
         # deploy model to SageMaker Inference
