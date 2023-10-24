@@ -74,7 +74,7 @@ with gr.Blocks(
         with gr.Column():
             init = get_default_bot()
             config_show = gr.Markdown(f"""
-            你当前的配置信息
+            Please click "build bot" button before talk
                         """)
             with gr.Row():
                 cos = refresh_collections()
