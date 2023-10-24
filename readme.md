@@ -426,19 +426,28 @@ sqlalchemy.exc.DataError: (psycopg2.errors.DataException) different vector dimen
 ```
 
 2. 查询不准确
-message": "The size of tensor a (589) must match the size of tensor b (512) at non-singleton dimension 1"\n}
-## vector 
+   message": "The size of tensor a (589) must match the size of tensor b (512) at non-singleton dimension 1"\n}
+
+## vector
 
 ```bash
 radio.exceptions.Error: 'Failed to import, the error detail is (psycopg2.errors.UndefinedObject) type "vector" does not exist
 ```
+
 ### pgvector数据查看
 
 ```sql
-select document, cmetadata from langchain_pg_embedding where collection_id = (select uuid from langchain_pg_collection where name='collection_name')
+select document, cmetadata
+from langchain_pg_embedding
+where collection_id = (select uuid from langchain_pg_collection where name = 'collection_name')
 ```
 
 ## sample model id in Amazon Bedrock
+
 cohere.command-text-v14
 anthropic.claude-v2
 anthropic.claude-v1
+
+### prompts sample
+
+[参考](./prompts.md)
