@@ -44,33 +44,56 @@ def show_session(session_bot):
     return session_bot
 
 
+def get_default_bot():
+    default_chatbot = bot_config.get_config("default_chatbot")
+    c_name = default_chatbot['collection_name']
+    conversational_mode = default_chatbot['conversational_mode']
+    """
+    get default bot configuration
+    :return:
+    """
+    # return {
+    #     'c': c_name,
+    #     'mode': conversational_mode,  # default value
+    #     'chain': build_chain(c_name, conversational_mode)
+    # }
+    return c_name, conversational_mode
+
+
 with gr.Blocks(
-        # theme=gr.themes.Monochrome(),
-        # # css="""#btn {background: red; color: red} .abc {background-color:red; font-family: "Comic Sans MS", "Comic Sans",
-        # # cursive !important} """
 ) as chatbot_page:
-    session_bot = gr.State({})
+    init_state = get_default_bot()
+    # print
+    print(init_state)
+    session_bot = gr.State({
+        'c': init_state[0],
+        'mode': init_state[1],  # default value
+        'chain': None
+    })
     with gr.Row():
         with gr.Column():
+            init = get_default_bot()
+            config_show = gr.Markdown(f"""
+            你当前的配置信息
+                        """)
             with gr.Row():
                 cos = refresh_collections()
 
                 t_collection_selector = gr.Dropdown(
                     cos, label="Choose knowledge collection",
-                    info="Knowledge will bases on this", scale=3
+                    info="Knowledge will bases on this", scale=3, value=init[0]
                 )
                 gr.Dropdown.update(choices=refresh_collections())
                 t_refresh_collections = gr.Button(value="Load Collections", scale=1)
                 t_refresh_collections.click(fn=list_collections, outputs=t_collection_selector)
 
-            t_conversation_mode = gr.Checkbox(label="Conversational mode?")
+            t_conversation_mode = gr.Checkbox(label="Conversational mode?", value=init[1])
 
             t_build_bot = gr.Button(value="Build Bot", elem_id="btn")
             # t_show_session = gr.Button(value="show session")
 
             bot_config_value = bot_config.get_config("bot")
-            config_show = gr.Markdown("""
-            """)
+
             # session_text = gr.TextArea(lines=20)
 
             # t_show_session.click(fn=show_session, inputs=[session_bot], outputs=[session_text])
@@ -99,11 +122,11 @@ with gr.Blocks(
                     return "", chat_history
 
 
-            msg.submit(talk, [msg, chatbot, session_bot],
-                       [msg, chatbot])
-
             t_build_bot.click(fn=rebuild_bot, inputs=[t_collection_selector, t_conversation_mode, session_bot],
                               outputs=[config_show, session_bot, msg, chatbot])
+
+            msg.submit(talk, [msg, chatbot, session_bot],
+                       [msg, chatbot])
 
 if is_under_proxy():
     chatbot_page.launch(server_name="0.0.0.0", server_port=7860, root_path="/chat")

@@ -58,6 +58,12 @@ def save_sm_config(llm_endpoint_region, llm_endpoint, llm_endpoint_embedding_reg
     # write_config("sm_embeddings_endpoint", embeddings_endpoint)
 
 
+def list_collections():
+    cos = refresh_collections()
+    print(cos)
+    return gr.Dropdown.update(choices=refresh_collections())
+
+
 def save_bot(llm, embeddings):
     write_config("bot", {
         "llm": llm,
@@ -65,7 +71,48 @@ def save_bot(llm, embeddings):
     })
 
 
+def save_default_bot(collection, mode):
+    print(f"the co is {collection} and mode is {mode}")
+    if len(collection) <= 0:
+        raise gr.Error("please choose a default collection")
+    # default_chatbot =
+    bot_config.write_config("default_chatbot", {
+        "collection_name": collection,
+        "conversational_mode": mode
+    })
+    return [collection, mode]
+
+
 with gr.Blocks() as bot_settings_page:
+    with gr.Accordion("Default Collection Settings"):
+        gr.Markdown(
+            """
+            # Setup your Default Collection
+            """)
+        default_chatbot = bot_config.get_config("default_chatbot")
+        print(f"the d is {default_chatbot}")
+        if default_chatbot is None:
+            default_chatbot = {
+                "collection_name": "",
+                "conversational_mode": True
+            }
+        c_name = default_chatbot['collection_name']
+        print(f"de cname is {c_name}")
+        conversational_mode = default_chatbot['conversational_mode']
+
+        cos = refresh_collections()
+        print(cos)
+        t_collection_selector = gr.Dropdown(
+            cos, label="Choose knowledge collection",
+            info="Knowledge will bases on this", scale=3, value=c_name
+        )
+        t_conversation_mode = gr.Checkbox(label="Conversational mode?", value=conversational_mode)
+        # gr.Dropdown.update(choices=refresh_collections())
+        t_set_default_btn = gr.Button(value="Set Default")
+        # t_refresh_collections.click(fn=list_collections, outputs=t_collection_selector)
+        t_set_default_btn.click(fn=save_default_bot, inputs=[t_collection_selector, t_conversation_mode],
+                                outputs=[t_collection_selector, t_conversation_mode])
+
     with gr.Accordion("Bot LLM&Embeddings Setup"):
         gr.Markdown(
             """

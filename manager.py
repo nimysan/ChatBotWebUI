@@ -56,6 +56,6 @@ def auth_manager(username, password):
 
 
 if is_under_proxy():
-    bot_manager.launch(server_name="0.0.0.0", auth=auth_manager, server_port=7865, root_path="/manage")
+    bot_manager.launch(server_name="0.0.0.0", server_port=7865, root_path="/manage")
 else:
     bot_manager.launch(server_name="0.0.0.0", server_port=7865)
