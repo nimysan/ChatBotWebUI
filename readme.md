@@ -423,16 +423,19 @@ curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document -
 ```bash
 # openaishi 1536  shibing624/text2vec-bge-large-chinese  1024 dim
 sqlalchemy.exc.DataError: (psycopg2.errors.DataException) different vector dimensions 1536 and 1024
-
 ```
 
 2. 查询不准确
 message": "The size of tensor a (589) must match the size of tensor b (512) at non-singleton dimension 1"\n}
-
 ## vector 
 
 ```bash
 radio.exceptions.Error: 'Failed to import, the error detail is (psycopg2.errors.UndefinedObject) type "vector" does not exist
+```
+### pgvector数据查看
+
+```sql
+select document, cmetadata from langchain_pg_embedding where collection_id = (select uuid from langchain_pg_collection where name='collection_name')
 ```
 
 ## sample model id in Amazon Bedrock
