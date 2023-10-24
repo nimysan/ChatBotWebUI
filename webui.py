@@ -77,7 +77,7 @@ with gr.Blocks(
         with gr.Column():
             init = get_default_bot()
             config_show = gr.Markdown(f"""
-            Please click "build bot" button before talk
+            # Please click **"Build Bot"** button before talk
                         """)
             with gr.Row():
                 cos = refresh_collections()
