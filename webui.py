@@ -46,6 +46,9 @@ def show_session(session_bot):
 
 def get_default_bot():
     default_chatbot = bot_config.get_config("default_chatbot")
+    if default_chatbot is None:
+        return ["", True]
+
     c_name = default_chatbot['collection_name']
     conversational_mode = default_chatbot['conversational_mode']
     """
